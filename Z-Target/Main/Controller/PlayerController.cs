@@ -15,6 +15,7 @@ public class PlayerController {
     {
         HandleMovement();
         HandleRotation(camera);
+        HandleShooting();
     }
 
     private void HandleMovement()
@@ -27,6 +28,14 @@ public class PlayerController {
         if (Raylib.IsKeyDown(KeyboardKey.D)) direction.X += 1;
 
         player.Direction = direction != Vector2.Zero ? Vector2.Normalize(direction) : Vector2.Zero;
+    }
+
+    private void HandleShooting()
+    {
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+        {
+            BulletController.Instance.ShootBullet(mouseWorldPos);
+        }
     }
 
     private void HandleRotation(Camera2D camera)

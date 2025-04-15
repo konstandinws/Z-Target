@@ -21,3 +21,4 @@ C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\bin\Debug\net9.0\runtimes\w
 C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\obj\Debug\net9.0\Z-Target.csproj.AssemblyReference.cache
 C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\obj\Debug\net9.0\Z-Target.csproj.Up2Date
 C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\bin\Debug\net9.0\TiledCS.dll
+C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\obj\Debug\net9.0\Z-Target.sourcelink.json

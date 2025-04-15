@@ -37,8 +37,7 @@ public class GameView
 
         playerView.Draw();
         zombieView.Draw();
-        // bulletView.Draw(); // Appel de la méthode Draw de BulletView
-        // bulletView.Draw(GameController.Instance.BulletController.BulletList); // Utilisation d'un singleton pour accéder à BulletController
+        bulletView.Draw(BulletController.Instance.BulletList); 
 
 
 
