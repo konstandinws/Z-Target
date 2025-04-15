@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ZombieController
 {
-    public static List<Zombie> zombiesList = new List<Zombie>();
+    private List<Zombie> zombiesList = new List<Zombie>();
     private float collisionRadius = 25f;
     private float gridSize = 100f; // Taille des cellules de la grille
 
@@ -36,6 +36,7 @@ public class ZombieController
                 {
                     zombie.TakeDamage(bullet.Damage);
                     BulletController.Instance.BulletList.RemoveAt(j);
+                    
                     if (!zombie.IsAlive)
                     {
                         zombiesList.RemoveAt(i);
@@ -44,6 +45,10 @@ public class ZombieController
                 }
             }
         }
+    }
+    public List<Zombie> GetZombies()
+    {
+        return zombiesList;
     }
 
     public void CreateZombies(int count)

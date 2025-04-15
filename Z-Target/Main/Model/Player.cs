@@ -8,6 +8,8 @@ public class Player
     public Color Color { get; set; } = Color.Blue;
     public Vector2 Direction = Vector2.Zero;
     public float AngleToMouse;
+    public float Health { get; private set; } = 100f;
+    public bool IsAlive { get; private set; } = true;
 
     private Vector2 velocity = Vector2.Zero;
     private Vector2 acceleration = Vector2.Zero;
@@ -39,5 +41,14 @@ public class Player
     public void UpdateAngle(Vector2 mousePosition)
     {
         AngleToMouse = MathF.Atan2(mousePosition.Y - Position.Y, mousePosition.X - Position.X) * (180f / MathF.PI);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        Health -= damage;
+        if (Health <= 0)
+        {
+            IsAlive = false;
+        }
     }
 }

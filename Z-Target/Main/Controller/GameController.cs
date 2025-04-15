@@ -13,11 +13,11 @@ public class GameController
     public GameController()
     {
         player = new Player();
-        playerController = new PlayerController(player);
         zombieController = new ZombieController();
+        playerController = new PlayerController(player, zombieController);
         bulletController = new BulletController(player); 
         
-        view = new GameView(player); // Instanciation de GameView avec le zombie
+        view = new GameView(player, zombieController); // Instanciation de GameView avec le zombie
         
         //settings pour la cam
         camera = new Camera2D();

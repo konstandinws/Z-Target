@@ -11,13 +11,13 @@ public class GameView
     // private BulletView bulletView;
 
     
-    public GameView(Player player)
+    public GameView(Player player, ZombieController zombieController)
     {
         // playerView = new PlayerView(player);
         // zombieView = new ZombieView();
         // bulletView = new BulletView();
         views.Add(new PlayerView(player));
-        views.Add(new ZombieView());
+        views.Add(new ZombieView(zombieController));
         views.Add(new BulletView());
     }
 
