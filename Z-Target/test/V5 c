@@ -1,0 +1,324 @@
+// ZombieShooterGame.cs
+using Raylib_cs;
+using System.Numerics;
+using static Raylib_cs.Raylib;
+using System.Collections.Generic;
+using System;
+
+class Program
+{
+    struct Zombie
+    {
+        public Vector2 Position;
+        public float Speed;
+        public int Health;
+        public float LastAttackTime;
+    }
+
+    struct Machine
+    {
+        public Rectangle Area;
+        public string Type;
+        public bool Active;
+    }
+
+    static int screenWidth = 1200;
+    static int screenHeight = 800;
+
+    static Vector2 playerPos = new Vector2(screenWidth / 2, screenHeight / 2);
+    static Vector2 playerSize = new Vector2(50, 50);
+    static Vector2 playerDir = new Vector2(0, 0);
+    static float playerSpeed = 400f;
+    static float playerDamageDelay = 0.5f;
+    static float playerLastHit = -1f;
+    static int playerHits = 0;
+    static float regenTimer = 0;
+    static bool isDead = false;
+    static bool hasSelfRevive = false;
+    static float deathTimer = 0;
+
+    static int maxAmmo = 12;
+    static int currentAmmo = maxAmmo;
+    static float reloadTime = 2f;
+    static float reloadTimer = 0;
+    static bool isReloading = false;
+    static bool fastReload = false;
+
+    static float bulletSpeed = 1600f;
+    static List<Vector2> bullets = new List<Vector2>();
+    static List<Vector2> bulletDirs = new List<Vector2>();
+
+    static List<Zombie> zombies = new List<Zombie>();
+    static List<Vector2> spawnPoints = new List<Vector2>() {
+        new Vector2(-50, 100),
+        new Vector2(screenWidth + 50, 200),
+        new Vector2(300, -50),
+        new Vector2(800, screenHeight + 50),
+        new Vector2(-50, screenHeight - 100)
+    };
+
+    static int round = 1;
+    static int zombiesPerRound = 5;
+    static int spawnedZombies = 0;
+    static float spawnCooldown = 1.5f;
+    static float spawnTimer = 0;
+    static bool newRound = true;
+    static float roundAnimTimer = 2f;
+
+    static int score = 0;
+
+    static Machine reloadMachine = new Machine { Area = new Rectangle(1000, 100, 50, 50), Type = "reload", Active = false };
+    static Machine reviveMachine = new Machine { Area = new Rectangle(100, 600, 50, 50), Type = "revive", Active = false };
+
+    static bool gameStarted = false;
+
+    public static void Main()
+    {
+        InitWindow(screenWidth, screenHeight, "Zombie Shooter");
+        SetTargetFPS(60);
+
+        while (!WindowShouldClose())
+        {
+            float dt = GetFrameTime();
+            BeginDrawing();
+            ClearBackground(Color.White);
+
+            if (!gameStarted)
+            {
+                DrawText("Zombie Shooter", screenWidth / 2 - 150, screenHeight / 2 - 50, 40, Color.Black);
+                DrawText("Press ENTER to Play", screenWidth / 2 - 130, screenHeight / 2, 30, Color.DarkGray);
+                DrawText("ESC to Quit", screenWidth / 2 - 80, screenHeight / 2 + 40, 20, Color.Gray);
+                if (IsKeyPressed(KeyboardKey.Enter)) gameStarted = true;
+                EndDrawing();
+                continue;
+            }
+
+            if (!isDead)
+            {
+                HandlePlayerMovement(dt);
+                HandleShooting(dt);
+                HandleZombies(dt);
+                HandleMachines();
+                HandleRounds(dt);
+                DrawGame(dt);
+            }
+            else
+            {
+                DrawRectangle(0, 0, screenWidth, screenHeight, ColorAlpha(Color.Red, 0.4f));
+                DrawText("YOU DIED", screenWidth / 2 - 100, screenHeight / 2 - 20, 40, Color.Black);
+                if (hasSelfRevive && deathTimer <= 0)
+                {
+                    hasSelfRevive = false;
+                    isDead = false;
+                    playerHits = 0;
+                    playerPos = new Vector2(screenWidth / 2, screenHeight / 2);
+                    zombies.ForEach(z => z.Position += Vector2.Normalize(z.Position - playerPos) * 100);
+                }
+                else
+                {
+                    deathTimer -= dt;
+                }
+            }
+
+            EndDrawing();
+        }
+
+        CloseWindow();
+    }
+
+    static void HandlePlayerMovement(float dt)
+    {
+        playerDir = Vector2.Zero;
+        if (IsKeyDown(KeyboardKey.W)) playerDir.Y = -1;
+        if (IsKeyDown(KeyboardKey.S)) playerDir.Y = 1;
+        if (IsKeyDown(KeyboardKey.A)) playerDir.X = -1;
+        if (IsKeyDown(KeyboardKey.D)) playerDir.X = 1;
+        if (playerDir != Vector2.Zero)
+        {
+            playerDir = Vector2.Normalize(playerDir);
+            playerPos += playerDir * playerSpeed * dt;
+        }
+    }
+
+    static void HandleShooting(float dt)
+    {
+        if (isReloading)
+        {
+            reloadTimer -= dt;
+            DrawCircle(screenWidth - 80, screenHeight - 80, 30, Color.LightGray);
+            DrawCircleSector(new Vector2(screenWidth - 80, screenHeight - 80), 30, -90, -90 + 360 * (1 - reloadTimer / reloadTime), 60, Color.DarkGray);
+            if (reloadTimer <= 0)
+            {
+                currentAmmo = maxAmmo;
+                isReloading = false;
+            }
+            return;
+        }
+
+        if (IsMouseButtonPressed(MouseButton.Left) && currentAmmo > 0)
+        {
+            Vector2 dir = Vector2.Normalize(GetMousePosition() - playerPos);
+            bullets.Add(playerPos);
+            bulletDirs.Add(dir);
+            currentAmmo--;
+        }
+        else if (IsKeyPressed(KeyboardKey.R))
+        {
+            isReloading = true;
+            reloadTimer = fastReload ? reloadTime / 2f : reloadTime;
+        }
+    }
+
+    static void HandleZombies(float dt)
+    {
+        for (int i = 0; i < zombies.Count; i++)
+        {
+            Vector2 toPlayer = playerPos - zombies[i].Position;
+            float dist = toPlayer.Length();
+            Vector2 move = Vector2.Normalize(toPlayer) * zombies[i].Speed * dt;
+
+            // check collisions
+            for (int j = 0; j < zombies.Count; j++)
+            {
+                if (i != j && Vector2.Distance(zombies[i].Position, zombies[j].Position) < 30)
+                    move -= (zombies[j].Position - zombies[i].Position) * 0.05f;
+            }
+
+            zombies[i] = new Zombie
+            {
+                Position = zombies[i].Position + move,
+                Speed = zombies[i].Speed,
+                Health = zombies[i].Health,
+                LastAttackTime = zombies[i].LastAttackTime
+            };
+
+            if (Vector2.Distance(zombies[i].Position, playerPos) < 40)
+            {
+                if (GetTime() - zombies[i].LastAttackTime > playerDamageDelay)
+                {
+                    playerHits++;
+                    Zombie tempZombie = zombies[i];
+                    tempZombie.LastAttackTime = (float)GetTime();
+                    zombies[i] = tempZombie;
+                    if (playerHits >= 3)
+                    {
+                        isDead = true;
+                        deathTimer = 2f;
+                    }
+                }
+            }
+        }
+
+        // Bullets hit zombies
+        for (int i = 0; i < bullets.Count; i++)
+        {
+            bullets[i] += bulletDirs[i] * bulletSpeed * dt;
+            for (int j = 0; j < zombies.Count; j++)
+            {
+                if (Vector2.Distance(bullets[i], zombies[j].Position) < 25)
+                {
+                    Zombie z = zombies[j];
+                    z.Health--;
+                    if (z.Health <= 0)
+                    {
+                        zombies.RemoveAt(j);
+                        score += 10;
+                    }
+                    else zombies[j] = z;
+                    bullets.RemoveAt(i);
+                    bulletDirs.RemoveAt(i);
+                    i--;
+                    break;
+                }
+            }
+        }
+    }
+
+    static void HandleRounds(float dt)
+    {
+        if (zombies.Count == 0 && spawnedZombies >= zombiesPerRound)
+        {
+            newRound = true;
+            roundAnimTimer = 2f;
+            round++;
+            spawnedZombies = 0;
+            zombiesPerRound = 5 + round * 2;
+        }
+
+        if (newRound)
+        {
+            roundAnimTimer -= dt;
+            if (roundAnimTimer <= 0)
+            {
+                newRound = false;
+            }
+            return;
+        }
+
+        spawnTimer -= dt;
+        if (spawnedZombies < zombiesPerRound && spawnTimer <= 0)
+        {
+            Vector2 spawn = spawnPoints[spawnedZombies % spawnPoints.Count];
+            int hp = 3 + (round / 3);
+            float spd = 100 + 10 * (round / 3);
+            zombies.Add(new Zombie { Position = spawn, Speed = spd, Health = hp, LastAttackTime = 0 });
+            spawnedZombies++;
+            spawnTimer = 1.2f;
+        }
+    }
+
+    static void HandleMachines()
+    {
+        if (CheckCollisionPointRec(playerPos, reloadMachine.Area))
+        {
+            DrawText("Press F to buy Fast Reload (100)", (int)reloadMachine.Area.X - 60, (int)reloadMachine.Area.Y - 20, 20, Color.DarkGray);
+            if (IsKeyPressed(KeyboardKey.F) && score >= 100 && !fastReload)
+            {
+                fastReload = true;
+                score -= 100;
+            }
+        }
+        if (CheckCollisionPointRec(playerPos, reviveMachine.Area))
+        {
+            DrawText("Press F to buy Self-Revive (200)", (int)reviveMachine.Area.X - 60, (int)reviveMachine.Area.Y - 20, 20, Color.DarkGray);
+            if (IsKeyPressed(KeyboardKey.F) && score >= 200 && !hasSelfRevive)
+            {
+                hasSelfRevive = true;
+                score -= 200;
+            }
+        }
+    }
+
+    static void DrawGame(float dt)
+    {
+        float angle = MathF.Atan2(GetMousePosition().Y - playerPos.Y, GetMousePosition().X - playerPos.X) * (180 / MathF.PI);
+        DrawRectanglePro(new Rectangle(playerPos.X, playerPos.Y, playerSize.X, playerSize.Y), new Vector2(playerSize.X / 2, playerSize.Y / 2), angle, Color.DarkBlue);
+
+        foreach (var bullet in bullets)
+            DrawCircle((int)bullet.X, (int)bullet.Y, 5, Color.Black);
+
+        foreach (var z in zombies)
+            DrawCircle((int)z.Position.X, (int)z.Position.Y, 25, Color.Red);
+
+        DrawRectangleRec(reloadMachine.Area, Color.SkyBlue);
+        DrawRectangleRec(reviveMachine.Area, Color.Orange);
+
+        DrawText($"Ammo: {currentAmmo}/{maxAmmo}", screenWidth - 160, screenHeight - 40, 20, Color.Black);
+        DrawText($"Score: {score}", 10, 30, 20, Color.Black);
+        DrawText($"Round: {round}", 10, 10, 20, Color.Black);
+
+        if (currentAmmo == 0 && !isReloading)
+            DrawText("RELOAD!", screenWidth - 160, screenHeight - 70, 20, Color.Red);
+
+        if (newRound)
+        {
+            DrawText($"Round {round}", screenWidth / 2 - 50, screenHeight / 2 - 10, 40, (int)(roundAnimTimer * 10) % 2 == 0 ? Color.Red : Color.Black);
+        }
+    }
+
+    static Color ColorAlpha(Color color, float alpha)
+    {
+        byte newAlpha = (byte)(Math.Clamp(alpha, 0f, 1f) * 255);
+        return new Color(color.R, color.G, color.B, newAlpha);
+    }
+}

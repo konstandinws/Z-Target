@@ -1,0 +1,125 @@
+using System;
+using System.IO;
+using Raylib_cs;
+using TiledCS;
+using System.Numerics;
+
+class Program
+{
+    static void Main()
+    {
+        // Initialisation de la fenêtre Raylib
+        const int screenWidth = 800;
+        const int screenHeight = 600;
+        Raylib.InitWindow(screenWidth, screenHeight, "Tiled + Raylib");
+        Raylib.SetTargetFPS(60);
+
+        // Chemins des fichiers
+        string mapPath = @"C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\map\map.tmx";
+        string tilesetPath = @"C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\tilesets\TX Tileset Grass.tsx";
+        string tilesetImagePath = @"C:\Users\Konstantinos\Desktop\Zombie Raylib\Z-Target\tilesets\TX Tileset Grass.png";
+
+        // Chargement de la carte et du tileset
+        var map = new TiledMap(mapPath);
+        var tileset = new TiledTileset(tilesetPath);
+        Texture2D tilesetTexture = Raylib.LoadTexture(tilesetImagePath);
+
+        // Calculer la taille de la carte en pixels
+        int mapPixelWidth = map.Width * map.TileWidth;
+        int mapPixelHeight = map.Height * map.TileHeight;
+
+        // Position de la caméra
+        Camera2D camera = new Camera2D();
+        camera.Target = new Vector2(0, 0);
+        camera.Offset = new Vector2(screenWidth/2, screenHeight/2);
+        camera.Rotation = 0.0f;
+        camera.Zoom = 1.0f;
+
+        while (!Raylib.WindowShouldClose())
+        {
+            // Déplacement de la caméra
+            if (Raylib.IsKeyDown(KeyboardKey.Right)) camera.Target.X += 5;
+            if (Raylib.IsKeyDown(KeyboardKey.Left)) camera.Target.X -= 5;
+            if (Raylib.IsKeyDown(KeyboardKey.Up)) camera.Target.Y -= 5;
+            if (Raylib.IsKeyDown(KeyboardKey.Down)) camera.Target.Y += 5;
+
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.RayWhite);
+
+            Raylib.BeginMode2D(camera);
+
+            // Dessiner chaque calque
+            foreach (var layer in map.Layers)
+            {
+                // On ne dessine que les calques de tuiles
+                if (layer.type != TiledLayerType.TileLayer) continue;
+
+                for (int y = 0; y < layer.height; y++)
+                {
+                    for (int x = 0; x < layer.width; x++)
+                    {
+                        // Index dans le tableau de données
+                        int index = y * layer.width + x;
+                        
+                        // GID de la tuile (0 = pas de tuile)
+                        int gid = layer.data[index];
+                        
+                        if (gid == 0) continue;
+
+                        // Trouver la tuile dans le tileset
+                        var tileRect = GetTileSourceRect(map, tileset, gid);
+                        
+                        // Position de la tuile sur l'écran
+                        Rectangle destRect = new Rectangle(
+                            x * map.TileWidth,
+                            y * map.TileHeight,
+                            map.TileWidth,
+                            map.TileHeight
+                        );
+                        
+                        // Dessiner la tuile
+                        Raylib.DrawTexturePro(
+                            tilesetTexture,
+                            tileRect,
+                            destRect,
+                            Vector2.Zero,
+                            0,
+                            Color.White
+                        );
+                    }
+                }
+            }
+
+            Raylib.EndMode2D();
+
+            // Afficher des infos
+            Raylib.DrawText("Utilisez les fleches pour deplacer la camera", 10, 10, 20, Color.DarkGray);
+            Raylib.DrawText($"Position camera: {camera.Target.X}, {camera.Target.Y}", 10, 40, 20, Color.DarkGray);
+
+            Raylib.EndDrawing();
+        }
+
+        // Nettoyage
+        Raylib.UnloadTexture(tilesetTexture);
+        Raylib.CloseWindow();
+    }
+
+    // Fonction pour obtenir le rectangle source d'une tuile
+    static Rectangle GetTileSourceRect(TiledMap map, TiledTileset tileset, int gid)
+    {
+        // Trouver l'index local de la tuile dans le tileset
+        int tileId = gid - map.Tilesets[0].firstgid;
+        
+        // Calculer la position dans l'image du tileset
+        int tilesPerRow = tileset.Image.width / tileset.TileWidth;
+        int row = tileId / tilesPerRow;
+        int col = tileId % tilesPerRow;
+        
+        return new Rectangle(
+            col * tileset.TileWidth,
+            row * tileset.TileHeight,
+            tileset.TileWidth,
+            tileset.TileHeight
+        );
+    }
+}

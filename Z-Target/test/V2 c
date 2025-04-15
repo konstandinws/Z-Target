@@ -1,0 +1,167 @@
+using Raylib_cs;
+using System.Numerics;
+
+class Program
+{
+    public static void Main()
+    {
+        const int screenWidth = 1200;
+        const int screenHeight = 800;
+        Raylib.InitWindow(screenWidth, screenHeight, "Zombie Shooter");
+        Raylib.SetTargetFPS(60);
+
+        Vector2 playerPos = new Vector2(screenWidth / 2, screenHeight / 2);
+        Vector2 size = new Vector2(50, 50);
+        Vector2 direction = new Vector2(0, 0);
+        float speed = 400.0f;
+
+        float zombieSpeed = 200.0f;
+        int maxAmmo = 12;
+        int currentAmmo = maxAmmo;
+        float bulletSpeed = 1600.0f;
+
+        int round = 1;
+        int zombiesPerRound = 5;
+        int score = 0;
+        bool gameOver = false;
+
+        List<Vector2> bullets = new List<Vector2>();
+        List<Vector2> bulletDirections = new List<Vector2>();
+
+        List<Vector2> zombies = new List<Vector2>();
+        List<int> zombieHealths = new List<int>(); // 3 HP each
+
+        void SpawnZombies(int count)
+        {
+            zombies.Clear();
+            zombieHealths.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 pos = new Vector2(Raylib.GetRandomValue(0, screenWidth), Raylib.GetRandomValue(0, screenHeight));
+                zombies.Add(pos);
+                zombieHealths.Add(3);
+            }
+        }
+
+        SpawnZombies(zombiesPerRound);
+
+        while (!Raylib.WindowShouldClose())
+        {
+            float deltaTime = Raylib.GetFrameTime();
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.White);
+
+            if (gameOver)
+            {
+                Raylib.DrawText("Game Over!", screenWidth / 2 - 100, screenHeight / 2, 40, Color.Red);
+                Raylib.EndDrawing();
+                continue;
+            }
+
+            // Mouvements
+            if (Raylib.IsKeyDown(KeyboardKey.D)) direction.X = 1;
+            else if (Raylib.IsKeyDown(KeyboardKey.A)) direction.X = -1;
+            else direction.X = 0;
+
+            if (Raylib.IsKeyDown(KeyboardKey.W)) direction.Y = -1;
+            else if (Raylib.IsKeyDown(KeyboardKey.S)) direction.Y = 1;
+            else direction.Y = 0;
+
+            if (direction != Vector2.Zero)
+            {
+                direction = Vector2.Normalize(direction);
+                playerPos += direction * speed * deltaTime;
+            }
+
+            Vector2 mousePos = Raylib.GetMousePosition();
+            float angle = MathF.Atan2(mousePos.Y - playerPos.Y, mousePos.X - playerPos.X) * (180 / MathF.PI);
+
+            // Tir
+            if (Raylib.IsMouseButtonPressed(MouseButton.Left) && currentAmmo > 0)
+            {
+                Vector2 bulletDir = Vector2.Normalize(mousePos - playerPos);
+                bullets.Add(playerPos);
+                bulletDirections.Add(bulletDir);
+                currentAmmo--;
+            }
+
+            // Rechargement
+            if (Raylib.IsKeyPressed(KeyboardKey.R))
+            {
+                currentAmmo = maxAmmo;
+            }
+
+            // Mise à jour des balles
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i] += bulletDirections[i] * bulletSpeed * deltaTime;
+                Raylib.DrawCircle((int)bullets[i].X, (int)bullets[i].Y, 5, Color.Black);
+
+                if (bullets[i].X < 0 || bullets[i].X > screenWidth || bullets[i].Y < 0 || bullets[i].Y > screenHeight)
+                {
+                    bullets.RemoveAt(i);
+                    bulletDirections.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            // Mise à jour des zombies
+            for (int i = 0; i < zombies.Count; i++)
+            {
+                Vector2 zDir = Vector2.Normalize(playerPos - zombies[i]);
+                zombies[i] += zDir * zombieSpeed * deltaTime;
+                Raylib.DrawCircle((int)zombies[i].X, (int)zombies[i].Y, 25, Color.Red);
+
+                // Collision joueur-zombie
+                if (Vector2.Distance(zombies[i], playerPos) < 35)
+                {
+                    gameOver = true;
+                }
+            }
+
+            // Collision balles-zombies
+            for (int i = 0; i < zombies.Count; i++)
+            {
+                for (int j = 0; j < bullets.Count; j++)
+                {
+                    if (Vector2.Distance(zombies[i], bullets[j]) < 25)
+                    {
+                        zombieHealths[i]--;
+                        bullets.RemoveAt(j);
+                        bulletDirections.RemoveAt(j);
+                        j--;
+
+                        if (zombieHealths[i] <= 0)
+                        {
+                            zombies.RemoveAt(i);
+                            zombieHealths.RemoveAt(i);
+                            score += 10;
+                            i--;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Passage au round suivant
+            if (zombies.Count == 0)
+            {
+                round++;
+                zombiesPerRound += 5;
+                SpawnZombies(zombiesPerRound);
+                currentAmmo = maxAmmo;
+            }
+
+            // Affichages
+            Raylib.DrawText("Round: " + round, 10, 10, 20, Color.DarkGreen);
+            Raylib.DrawText("Zombies left: " + zombies.Count, 10, 30, 20, Color.Black);
+            Raylib.DrawText("Score: " + score, 10, 50, 20, Color.Black);
+            Raylib.DrawText("Ammo: " + currentAmmo + " / " + maxAmmo, screenWidth - 180, screenHeight - 40, 20, Color.Blue);
+
+            Raylib.DrawRectanglePro(new Rectangle(playerPos.X, playerPos.Y, size.X, size.Y), new Vector2(size.X / 2, size.Y / 2), angle, Color.Maroon);
+            Raylib.EndDrawing();
+        }
+
+        Raylib.CloseWindow();
+    }
+}

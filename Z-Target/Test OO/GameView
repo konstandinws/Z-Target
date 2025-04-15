@@ -1,0 +1,57 @@
+using Raylib_cs;
+using System.Numerics;
+using System.Collections.Generic;
+
+public class GameView
+{
+    private Player player;
+    private List<Bullet> bullets;
+    private List<Zombie> zombies;
+
+    public GameView(Player player, List<Bullet> bullets, List<Zombie> zombies)
+    {
+        this.player = player;
+        this.bullets = bullets;
+        this.zombies = zombies;
+    }
+
+    public void Render()
+    {
+        Raylib.BeginDrawing();
+        Raylib.ClearBackground(Color.RayWhite);
+
+        // JOUEUR
+        Rectangle rect = new Rectangle(player.Position.X, player.Position.Y, player.Size.X, player.Size.Y);
+        Vector2 origin = player.Size / 2f;
+        Raylib.DrawRectanglePro(rect, origin, player.AngleToMouse, player.Color);
+        Raylib.DrawCircleV(player.Position, 3, Color.Red); // centre joueur
+
+        // BULLETS
+        foreach (var bullet in bullets)
+            bullet.Draw();
+
+        // ZOMBIES
+        foreach (var zombie in zombies)
+            zombie.Draw();
+
+        // VISEUR
+        Vector2 mouse = Raylib.GetMousePosition();
+        Raylib.DrawCircleLines((int)mouse.X, (int)mouse.Y, 10, Color.Red);
+        Raylib.DrawLine((int)mouse.X - 5, (int)mouse.Y, (int)mouse.X + 5, (int)mouse.Y, Color.Red);
+        Raylib.DrawLine((int)mouse.X, (int)mouse.Y - 5, (int)mouse.X, (int)mouse.Y + 5, Color.Red);
+
+        // HUD
+        string weaponName = player.CurrentWeapon == Player.WeaponType.Pistol ? "Pistol" : "Rifle";
+        string hud = $"Weapon: {weaponName} | Ammo: {player.Ammo}/{player.MaxAmmo}";
+        Raylib.DrawText(hud, 20, 20, 20, Color.Black);
+        Raylib.DrawText($"HP: {player.Health}", 20, 50, 20, Color.DarkPurple);
+        Raylib.DrawText($"Score: {player.Score}", 20, 80, 20, Color.DarkGreen);
+
+        // Indication rechargement
+        if (player.IsReloading)
+            Raylib.DrawText("Reloading...", 20, 110, 20, Color.Orange);
+
+
+        Raylib.EndDrawing();
+    }
+}

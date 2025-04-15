@@ -1,0 +1,44 @@
+using Raylib_cs;
+using System.Numerics;
+public class GameController
+{
+    private Player player;
+    private GameView view;
+
+    Vector2 mousePosition; // je dois la passer en static si je veux initializer direct angle
+    
+    
+    public GameController()
+    {
+        player = new Player() { Position = new System.Numerics.Vector2(400, 300) };
+        view = new GameView(player);
+    }
+
+    public void Update(float deltaTime)
+    {
+        // deplacement du joueur
+        player.Direction = Vector2.Zero;
+        if (Raylib.IsKeyDown(KeyboardKey.W)) player.Direction.Y -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.S)) player.Direction.Y += 1;
+        if (Raylib.IsKeyDown(KeyboardKey.A)) player.Direction.X -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.D)) player.Direction.X += 1;
+
+        if (player.Direction != Vector2.Zero)
+            player.Direction = Vector2.Normalize(player.Direction);
+
+
+        // rotation du joeur vers la souris
+        mousePosition = Raylib.GetMousePosition();
+        player.UpdateAngle(mousePosition);
+
+
+        player.Move(deltaTime);
+    }
+
+
+
+    public void Draw()
+    {
+        view.Render();
+    }
+}

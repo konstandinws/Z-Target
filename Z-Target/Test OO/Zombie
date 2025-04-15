@@ -1,0 +1,34 @@
+using System.Numerics;
+using Raylib_cs;
+
+public class Zombie
+{
+    public Vector2 Position;
+    public float Speed = 100f;
+    public float Radius = 20f;
+    public bool IsDead = false;
+    public int Health = 1;
+
+    public Zombie(Vector2 spawnPos)
+    {
+        Position = spawnPos;
+    }
+
+    public void Update(float dt, Vector2 target)
+    {
+        Vector2 dir = Vector2.Normalize(target - Position);
+        Position += dir * Speed * dt;
+    }
+
+    public void Draw()
+    {
+        Raylib.DrawCircleV(Position, Radius, Color.Green);
+    }
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health <= 0)
+            IsDead = true;
+    }
+}

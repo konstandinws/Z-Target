@@ -1,0 +1,114 @@
+using Raylib_cs;
+using System.Numerics;
+using System.Collections.Generic;
+
+public class GameController
+{
+    private Player player;
+    private GameView view;
+
+    private List<Bullet> bullets = new();
+    private List<Zombie> zombies = new();
+    private float shootCooldown = 0f;
+    private float zombieSpawnTimer = 0f;
+
+    public GameController()
+    {
+        player = new Player() { Position = new Vector2(400, 300) };
+        view = new GameView(player, bullets, zombies);
+    }
+
+    public void Update(float deltaTime)
+    {
+        // MOUVEMENT
+        player.Direction = Vector2.Zero;
+        if (Raylib.IsKeyDown(KeyboardKey.W)) player.Direction.Y -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.S)) player.Direction.Y += 1;
+        if (Raylib.IsKeyDown(KeyboardKey.A)) player.Direction.X -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.D)) player.Direction.X += 1;
+
+        if (player.Direction != Vector2.Zero)
+            player.Direction = Vector2.Normalize(player.Direction);
+
+        player.Move(deltaTime);
+        player.UpdateAngle(Raylib.GetMousePosition());
+
+        // TIR
+        shootCooldown -= deltaTime;
+        if (Raylib.IsMouseButtonDown(MouseButton.Left) && shootCooldown <= 0f)
+        {
+            bullets.Add(new Bullet(player.Position, Raylib.GetMousePosition()));
+            shootCooldown = 0.2f;
+        }
+
+        // BULLETS
+        foreach (var bullet in bullets)
+            bullet.Update(deltaTime);
+
+        bullets.RemoveAll(b => b.IsDead);
+
+        // ZOMBIES
+        foreach (var zombie in zombies)
+            zombie.Update(deltaTime, player.Position);
+
+        // COLLISIONS
+        foreach (var bullet in bullets)
+        {
+            foreach (var zombie in zombies)
+            {
+                if (!zombie.IsDead && bullet.CollidesWith(zombie))
+                {
+                    zombie.TakeDamage(1);
+                    bullet.IsDead = true;
+                }
+                if (bullet.CollidesWith(zombie))
+                {
+                    zombie.TakeDamage(1);
+                    bullet.IsDead = true;
+                    player.Score += 10;
+                }
+
+            }
+        }
+
+        zombies.RemoveAll(z => z.IsDead);
+
+        // SPAWN DE ZOMBIES
+        zombieSpawnTimer -= deltaTime;
+        if (zombieSpawnTimer <= 0f)
+        {
+            Vector2 spawnPos = new Vector2(Raylib.GetRandomValue(0, 800), -30);
+            zombies.Add(new Zombie(spawnPos));
+            zombieSpawnTimer = 2f;
+        }
+
+        // Mise à jour reload
+        player.UpdateReload(deltaTime);
+
+        // Changement d'arme
+        if (Raylib.IsKeyPressed(KeyboardKey.One))
+            player.CurrentWeapon = Player.WeaponType.Pistol;
+        if (Raylib.IsKeyPressed(KeyboardKey.Two))
+            player.CurrentWeapon = Player.WeaponType.Rifle;
+
+        // Rechargement manuel
+        if (Raylib.IsKeyPressed(KeyboardKey.R) && !player.IsReloading)
+            player.StartReload();
+
+        // Tir
+        shootCooldown -= deltaTime;
+
+        if (Raylib.IsMouseButtonDown(MouseButton.Left) && shootCooldown <= 0f && !player.IsReloading && player.Ammo > 0)
+        {
+            bullets.Add(new Bullet(player.Position, Raylib.GetMousePosition()));
+            shootCooldown = player.CurrentWeapon == Player.WeaponType.Pistol ? 0.4f : 0.1f;
+            player.Ammo--;
+        }
+
+    }
+
+    public void Draw()
+    {
+        view.Render();
+    }
+}

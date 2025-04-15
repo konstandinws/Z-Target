@@ -1,0 +1,70 @@
+using Raylib_cs;
+using System.Numerics;
+
+public class Player
+{
+    public Vector2 Position { get; set; }
+    public Vector2 Size { get; set; } = new Vector2(50, 30);
+    public Color Color { get; set; } = Color.Blue;
+    public float Speed { get; set; } = 300f;
+    public Vector2 Direction = Vector2.Zero;
+    public float AngleToMouse;
+
+    // Combat
+    public int Health = 100;
+    public int Score = 0;
+
+    // Armes
+    public enum WeaponType { Pistol, Rifle }
+    public WeaponType CurrentWeapon = WeaponType.Pistol;
+
+    public int Ammo;
+    public int MaxAmmo;
+    public float ReloadTime = 1.5f;
+    public float ReloadTimer = 0f;
+    public bool IsReloading = false;
+
+    public void UpdateAngle(Vector2 mousePosition)
+    {
+        AngleToMouse = MathF.Atan2(mousePosition.Y - Position.Y, mousePosition.X - Position.X) * (180f / MathF.PI);
+    }
+
+    public void Move(float deltaTime)
+    {
+        Position += Direction * Speed * deltaTime;
+    }
+
+    public void SwitchWeapon()
+    {
+        if (CurrentWeapon == WeaponType.Pistol)
+        {
+            CurrentWeapon = WeaponType.Rifle;
+            MaxAmmo = 20;
+        }
+        else
+        {
+            CurrentWeapon = WeaponType.Pistol;
+            MaxAmmo = 6;
+        }
+        Ammo = MaxAmmo;
+    }
+
+    public void StartReload()
+    {
+        IsReloading = true;
+        ReloadTimer = ReloadTime;
+    }
+
+    public void UpdateReload(float dt)
+    {
+        if (IsReloading)
+        {
+            ReloadTimer -= dt;
+            if (ReloadTimer <= 0)
+            {
+                IsReloading = false;
+                Ammo = MaxAmmo;
+            }
+        }
+    }
+}
