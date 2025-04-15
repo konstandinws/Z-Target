@@ -6,11 +6,12 @@ public class GameView
 
     private PlayerView playerView;
     private ZombieView zombieView;
-
+    private BulletView bulletView;
     public GameView(Player player)
     {
         playerView = new PlayerView(player);
         zombieView = new ZombieView();
+        bulletView = new BulletView(); // Instanciation de BulletView
     }
 
     private void DrawGrid(int spacing){
@@ -36,6 +37,9 @@ public class GameView
 
         playerView.Draw();
         zombieView.Draw();
+        // bulletView.Draw(); // Appel de la méthode Draw de BulletView
+        // bulletView.Draw(GameController.Instance.BulletController.BulletList); // Utilisation d'un singleton pour accéder à BulletController
+
 
 
         // Raylib.DrawText("test 2D",20,20,20,Color.Red);

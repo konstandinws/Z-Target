@@ -4,11 +4,10 @@ public class GameController
 {
     private Player player;
     private GameView view;
-    private PlayerController playerController; 
     private Camera2D camera;
-     // soit je met en static soit je met la listzombie dans zombiecontroller
-
+    private PlayerController playerController; 
     private ZombieController zombieController;
+    private BulletController bulletController;
     
     
     public GameController()
@@ -16,6 +15,7 @@ public class GameController
         player = new Player();
         playerController = new PlayerController(player);
         zombieController = new ZombieController();
+        bulletController = new BulletController(player); 
         
         view = new GameView(player); // Instanciation de GameView avec le zombie
         
@@ -30,6 +30,7 @@ public class GameController
     {
         playerController.Update(dt,camera); 
         zombieController.Update(dt,player);
+        bulletController.Update(dt);
 
         camera.Target = player.Position;
     }
