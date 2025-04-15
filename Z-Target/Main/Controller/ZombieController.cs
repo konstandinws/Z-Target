@@ -21,6 +21,29 @@ public class ZombieController
         }
 
         HandleCollisions();
+        HandleBulletCollisions();
+    }
+
+    private void HandleBulletCollisions()
+    {
+        for (int i = zombiesList.Count - 1; i >= 0; i--)
+        {
+            Zombie zombie = zombiesList[i];
+            for (int j = BulletController.Instance.BulletList.Count - 1; j >= 0; j--)
+            {
+                Bullet bullet = BulletController.Instance.BulletList[j];
+                if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.radius + bullet.Radius)
+                {
+                    zombie.TakeDamage(bullet.Damage);
+                    BulletController.Instance.BulletList.RemoveAt(j);
+                    if (!zombie.IsAlive)
+                    {
+                        zombiesList.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public void CreateZombies(int count)

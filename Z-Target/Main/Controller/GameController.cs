@@ -33,6 +33,13 @@ public class GameController
         bulletController.Update(dt);
 
         camera.Target = player.Position;
+
+        // MOUVEMENT
+        player.Direction = Vector2.Zero;
+        if (Raylib.IsKeyDown(KeyboardKey.W) || Raylib.IsKeyDown(KeyboardKey.Up)) player.Direction.Y -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.S) || Raylib.IsKeyDown(KeyboardKey.Down)) player.Direction.Y += 1;
+        if (Raylib.IsKeyDown(KeyboardKey.A) || Raylib.IsKeyDown(KeyboardKey.Left)) player.Direction.X -= 1;
+        if (Raylib.IsKeyDown(KeyboardKey.D) || Raylib.IsKeyDown(KeyboardKey.Right)) player.Direction.X += 1;
     }
     public void Draw()
     {

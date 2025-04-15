@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "dJuB9CJV6vI=",
+  "dgSpecHash": "5DwfQA+KQ5A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Konstantinos\\Desktop\\Zombie Raylib\\Z-Target\\Z-Target.csproj",
+  "projectFilePath": "C:\\Users\\Konstantinos\\Desktop\\je sais pas pourquoi CURSOR\\Z-Target\\Z-Target\\Z-Target.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Konstantinos\\.nuget\\packages\\raylib-cs\\7.0.1\\raylib-cs.7.0.1.nupkg.sha512",
     "C:\\Users\\Konstantinos\\.nuget\\packages\\tiledcs\\3.3.3\\tiledcs.3.3.3.nupkg.sha512"

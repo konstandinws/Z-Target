@@ -43,12 +43,12 @@ public class Bullet{
 
     public Vector2 Position;
     Vector2 Direction;
-    public int Damage { get; private set; } = 10;
+    public int Damage { get; private set; } = 33;
     float bulletSpeed = 1600.0f;
     public float Radius { get; private set; } = 5f;
     public Color Color { get; private set; } = Color.Black; 
 
-   public Bullet(Vector2 position, Vector2 direction, int damage = 10)
+   public Bullet(Vector2 position, Vector2 direction, int damage = 33)
     {
         Position = position;
         Direction = direction;

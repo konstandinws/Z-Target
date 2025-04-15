@@ -1,3 +1,4 @@
 {
-    "dotnet.defaultSolution": "Z-Target.sln"
+    "dotnet.defaultSolution": "Z-Target.sln",
+    "workbench.colorTheme": "Cursor Dark"
 }

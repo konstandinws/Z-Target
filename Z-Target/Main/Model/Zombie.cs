@@ -9,7 +9,7 @@ public class Zombie
     public int radius = 27; 
 
     public Zombie(){
-        Health = 150;
+        Health = 100;
         Position = new Vector2(Raylib.GetRandomValue(0, GameConfig.ScreenWidth), -200);
         IsAlive = true;
     }
@@ -20,4 +20,12 @@ public class Zombie
         Position += dir * Speed * dt;
     }
 
+    public void TakeDamage(float damage)
+    {
+        Health -= damage;
+        if (Health <= 0)
+        {
+            IsAlive = false;
+        }
+    }
 }
