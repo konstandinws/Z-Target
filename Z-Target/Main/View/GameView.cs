@@ -1,17 +1,24 @@
 using Raylib_cs;
+using System.Data;
 using System.Numerics;
 
 public class GameView
 {
+    List<IView> views = new List<IView>();
 
-    private PlayerView playerView;
-    private ZombieView zombieView;
-    private BulletView bulletView;
+    // private PlayerView playerView;
+    // private ZombieView zombieView;
+    // private BulletView bulletView;
+
+    
     public GameView(Player player)
     {
-        playerView = new PlayerView(player);
-        zombieView = new ZombieView();
-        bulletView = new BulletView(); // Instanciation de BulletView
+        // playerView = new PlayerView(player);
+        // zombieView = new ZombieView();
+        // bulletView = new BulletView();
+        views.Add(new PlayerView(player));
+        views.Add(new ZombieView());
+        views.Add(new BulletView());
     }
 
     private void DrawGrid(int spacing){
@@ -24,6 +31,12 @@ public class GameView
                 Raylib.DrawLine(0, i, GameConfig.ScreenWidth, i, Color.LightGray);
             }
     }
+
+    private void DrawViews()
+    {
+        foreach (var view in views)
+            view.Draw();
+    }
     public void Render(Camera2D camera)
     {
         Raylib.BeginDrawing(); 
@@ -35,11 +48,10 @@ public class GameView
         // Draw a grid
         DrawGrid(50);
 
-        playerView.Draw();
-        zombieView.Draw();
-        bulletView.Draw(BulletController.Instance.BulletList); 
-
-
+        // playerView.Draw();
+        // zombieView.Draw();
+        // bulletView.Draw(); 
+        DrawViews();
 
         // Raylib.DrawText("test 2D",20,20,20,Color.Red);
 

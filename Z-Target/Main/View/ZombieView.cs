@@ -1,7 +1,7 @@
 using Raylib_cs;
 using System.Numerics;
 
-public class ZombieView
+public class ZombieView : IView
 {
   public void Draw(){
     foreach(Zombie zombie in ZombieController.zombiesList){

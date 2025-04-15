@@ -1,7 +1,7 @@
 using Raylib_cs;
 using System.Numerics;
 
-public class PlayerView {
+public class PlayerView : IView{
 
     private Player player;
 
