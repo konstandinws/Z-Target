@@ -17,7 +17,7 @@ public class GameView
         // zombieView = new ZombieView();
         // bulletView = new BulletView();
         views.Add(new PlayerView(player));
-        views.Add(new ZombieView(zombieController));
+        views.Add(new ZombieView(zombieController, player));
         views.Add(new BulletView());
     }
 
