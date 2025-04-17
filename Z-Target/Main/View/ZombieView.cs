@@ -1,5 +1,6 @@
 using Raylib_cs;
 using System.Numerics;
+using System.Linq;
 
 public class ZombieView : IView
 {
@@ -23,10 +24,15 @@ public class ZombieView : IView
 
     public void Draw()
     {
-        foreach(Zombie zombie in zombieController.GetZombies())
+        // Trier les zombies par position Y (du plus bas au plus haut)
+        List<Zombie> sortedZombies = zombieController.GetZombies()
+            .OrderBy(z => z.Position.Y)
+            .ToList();
+
+        foreach(Zombie zombie in sortedZombies)
         {
-            int centerX = (int)zombie.Position.X;
-            int centerY = (int)zombie.Position.Y - (sliceCount * sliceOffset) + 150;
+            float centerX = zombie.Position.X;
+            float centerY = zombie.Position.Y - (sliceCount * sliceOffset) + 150;
 
             // Calcul de l'angle entre le zombie et le joueur
             Vector2 direction = player.Position - zombie.Position;
@@ -38,8 +44,8 @@ public class ZombieView : IView
                 Texture2D slice = slices[i];
 
                 // Calcul du centre de la tranche pour la rotation
-                int sliceCenterX = centerX;
-                int sliceCenterY = centerY + offsetY;
+                float sliceCenterX = centerX;
+                float sliceCenterY = centerY + offsetY;
 
                 // Calcul du rectangle de destination pour DrawTextureEx
                 Rectangle sourceRec = new Rectangle(0, 0, slice.Width, slice.Height);
@@ -53,7 +59,7 @@ public class ZombieView : IView
         }
     }
 
-    private void DrawHealthBar(Zombie zombie, int centerY)
+    private void DrawHealthBar(Zombie zombie, float centerY)
     {
         // Ajustement de la position de la barre de vie pour qu'elle soit au-dessus du zombie
         float healthBarY = centerY - (sliceCount * sliceOffset) - 10;
