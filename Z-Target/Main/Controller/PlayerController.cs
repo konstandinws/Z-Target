@@ -10,7 +10,7 @@ public class PlayerController {
     public PlayerController(Player player){
         this.player = player;
         player.mainWeapon = new M1911();
-        // view = new PlayerView(player);
+        player.secondaryWeapon = new AK47();
     }
 
     public void HandleInput(Camera2D camera)
@@ -19,6 +19,7 @@ public class PlayerController {
         HandleRotation(camera);
         HandleShooting();
         HandleReload();
+        changeWeapon();
     }
 
     private void HandleMovement()
@@ -68,8 +69,9 @@ public class PlayerController {
 
         if(Raylib.IsKeyPressed(KeyboardKey.E)){
             if(player.secondaryWeapon != null){
-                player.secondaryWeapon = player.mainWeapon;
+                Weapon temp = player.mainWeapon;
                 player.mainWeapon = player.secondaryWeapon;
+                player.secondaryWeapon = temp;
             }
         }
     }

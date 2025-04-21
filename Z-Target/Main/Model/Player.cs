@@ -17,7 +17,7 @@ public class Player
     private float minVelocity = 0.01f; // vitesse minimale avant de s'arreter
 
     public Weapon mainWeapon;
-    public Weapon secondaryWeapon = new AK47();
+    public Weapon secondaryWeapon;
 
     public bool isReloading = false;
 

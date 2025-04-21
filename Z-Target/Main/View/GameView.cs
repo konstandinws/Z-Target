@@ -58,10 +58,10 @@ public class GameView
         // Raylib.DrawText("test 2D",20,20,20,Color.Red);
 
         Raylib.EndMode2D();
+        hudView.Draw();
 
         // Raylib.DrawText(Raylib.GetFPS().ToString(),20,60,20,Color.Red);
 
-        hudView.Draw();
 
         Raylib.EndDrawing();
     }

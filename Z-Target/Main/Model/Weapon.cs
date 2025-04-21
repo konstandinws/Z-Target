@@ -1,4 +1,5 @@
 using System.Numerics;
+using Raylib_cs;
 public abstract class Weapon{
 
     public string name;
@@ -14,6 +15,24 @@ public abstract class Weapon{
 
     public float reloadTime;
 
-    public abstract void Shoot(Vector2 position, Vector2 direction, BulletController bulletController);
-    public abstract void Reload();
+    public virtual void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
+    {
+        if (Raylib.GetTime() - lastShotTime >= FireRate)
+        {
+            bulletController.ShootBullet(direction, Damage, points);
+            lastShotTime = (float)Raylib.GetTime();
+            currentAmmo--;
+        }
+    }
+    public virtual void Reload(){
+        maxAmmo += currentAmmo;
+
+        if (maxAmmo >= clipSize) {
+            currentAmmo = clipSize;
+            maxAmmo -= clipSize;
+        } else {
+            currentAmmo = maxAmmo;
+            maxAmmo = 0;
+        }
+    }
 }

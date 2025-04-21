@@ -29,25 +29,24 @@ public class HUDView : IView
 
         // Affichage des balles
         Weapon weapon = player.mainWeapon;
-        Raylib.DrawText($"{player.mainWeapon.name}", GameConfig.ScreenWidth - 220, GameConfig.ScreenHeight - 50, 24, Color.Black);
+        int textWidth = Raylib.MeasureText($"{player.mainWeapon.name}", 24);
+        Raylib.DrawText($"{player.mainWeapon.name}", GameConfig.ScreenWidth - textWidth - 150, GameConfig.ScreenHeight - 50, 24, Color.Black);
         if(!player.isReloading){
-            Raylib.DrawText($"{weapon.currentAmmo}/{weapon.maxAmmo}", GameConfig.ScreenWidth - 150, GameConfig.ScreenHeight - 50, 24, Color.Black);
+            Raylib.DrawText($"{weapon.currentAmmo}/{weapon.maxAmmo}", GameConfig.ScreenWidth - 130, GameConfig.ScreenHeight - 50, 24, Color.Black);
         }
-
-
+        
         if (player.isReloading)
         {
             DrawReloading();
         }
 
-        // Affichage des textes flottants
         DrawFloatingTexts(deltaTime);
     }
 
     public void DrawReloading()
     {
         Raylib.DrawCircleSector(
-            new Vector2(GameConfig.ScreenWidth - 100, GameConfig.ScreenHeight - 45),20,0,360 * (player.mainWeapon.reloadTimer / player.mainWeapon.reloadTime),60,Color.DarkGray
+            new Vector2(GameConfig.ScreenWidth - 80, GameConfig.ScreenHeight - 45),20,0,360 * (player.mainWeapon.reloadTimer / player.mainWeapon.reloadTime),60,Color.DarkGray
         );
     }
 
@@ -69,14 +68,12 @@ public class HUDView : IView
         {
             var (text, position, velocity, spawnTime) = floatingTexts[i];
 
-            // Si le texte est trop vieux, on le supprime
             if (currentTime - spawnTime > 0.5)
             {
                 floatingTexts.RemoveAt(i);
                 continue;
             }
 
-            // Mise à jour de la position
             Vector2 newPosition = position + velocity * deltaTime;
             floatingTexts[i] = (text, newPosition, velocity, spawnTime);
 
@@ -85,6 +82,6 @@ public class HUDView : IView
     }
 
     public void NoAmmo(){
-        Raylib.DrawText("No Ammo", 20, 80, 24, Color.Red);
+        Raylib.DrawText("No Ammo", GameConfig.ScreenWidth/2 - 50, GameConfig.ScreenHeight/2 + 70, 24, Color.Red);
     }
 }
