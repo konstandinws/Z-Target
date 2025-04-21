@@ -6,8 +6,10 @@ public class PlayerController {
     // private PlayerView view;
     Vector2 mouseWorldPos;
 
+
     public PlayerController(Player player){
         this.player = player;
+        player.mainWeapon = new M1911();
         // view = new PlayerView(player);
     }
 
@@ -16,6 +18,7 @@ public class PlayerController {
         HandleMovement();
         HandleRotation(camera);
         HandleShooting();
+        HandleReload();
     }
 
     private void HandleMovement()
@@ -32,9 +35,42 @@ public class PlayerController {
 
     private void HandleShooting()
     {
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+        if (Raylib.IsMouseButtonDown(MouseButton.Left) && player.mainWeapon.currentAmmo > 0 && !player.isReloading)
         {
-            BulletController.Instance.ShootBullet(mouseWorldPos);
+            player.mainWeapon.Shoot(player.Position, mouseWorldPos, BulletController.Instance);
+        }
+    }
+
+    private void HandleReload()
+    {
+        if (Raylib.IsKeyPressed(KeyboardKey.R) && player.mainWeapon.currentAmmo < player.mainWeapon.clipSize && !player.isReloading && player.mainWeapon.maxAmmo > 0)
+        {
+            player.isReloading = true;
+            player.mainWeapon.reloadTimer = 0f;
+            player.mainWeapon.Reload();
+        }
+
+        if (player.isReloading)
+        {
+            player.mainWeapon.reloadTimer += Raylib.GetFrameTime();
+            if (player.mainWeapon.reloadTimer >= player.mainWeapon.reloadTime)
+            {
+                player.mainWeapon.currentAmmo = player.mainWeapon.clipSize;
+                player.isReloading = false;
+            }
+        }
+        if(player.mainWeapon.maxAmmo == 0 && player.mainWeapon.currentAmmo == 0){
+            HUDView.Instance.NoAmmo();
+        }
+    }
+
+    private void changeWeapon(){
+
+        if(Raylib.IsKeyPressed(KeyboardKey.E)){
+            if(player.secondaryWeapon != null){
+                player.secondaryWeapon = player.mainWeapon;
+                player.mainWeapon = player.secondaryWeapon;
+            }
         }
     }
 

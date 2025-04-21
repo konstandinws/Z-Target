@@ -14,7 +14,7 @@ public class GameController
     {
         player = new Player();
         playerController = new PlayerController(player);
-        zombieController = new ZombieController();
+        zombieController = new ZombieController(player);
         bulletController = new BulletController(player); 
         
         view = new GameView(player); // Instanciation de GameView avec le zombie

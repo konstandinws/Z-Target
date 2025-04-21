@@ -9,6 +9,7 @@ public class GameView
     // private PlayerView playerView;
     // private ZombieView zombieView;
     // private BulletView bulletView;
+    private HUDView hudView;
 
     
     public GameView(Player player)
@@ -19,6 +20,7 @@ public class GameView
         views.Add(new PlayerView(player));
         views.Add(new ZombieView());
         views.Add(new BulletView());
+        hudView = new HUDView(player);
     }
 
     private void DrawGrid(int spacing){
@@ -59,6 +61,7 @@ public class GameView
 
         // Raylib.DrawText(Raylib.GetFPS().ToString(),20,60,20,Color.Red);
 
+        hudView.Draw();
 
         Raylib.EndDrawing();
     }

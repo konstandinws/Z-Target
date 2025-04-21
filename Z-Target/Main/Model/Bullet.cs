@@ -47,12 +47,14 @@ public class Bullet{
     float bulletSpeed = 1600.0f;
     public float Radius { get; private set; } = 5f;
     public Color Color { get; private set; } = Color.Black; 
+    public int points { get; private set; } = 10;
 
-   public Bullet(Vector2 position, Vector2 direction, int damage = 50)
+   public Bullet(Vector2 position, Vector2 direction, int damage = 50, int points = 10)
     {
         Position = position;
         Direction = direction;
         Damage = damage;
+        this.points = points;
     }
 
     public void Move(float dt){

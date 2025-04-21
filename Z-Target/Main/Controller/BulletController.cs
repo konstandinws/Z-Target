@@ -31,9 +31,10 @@ public class BulletController{
         return pos.X < 0 || pos.X > GameConfig.ScreenWidth || pos.Y < 0 || pos.Y > GameConfig.ScreenHeight;
     }
 
-    public void ShootBullet(Vector2 targetPos, int damage = 50)
+    public void ShootBullet(Vector2 targetPos, int damage, int points)
     {
         Vector2 direction = Vector2.Normalize(targetPos - player.Position);
-        BulletList.Add(new Bullet(player.Position, direction, damage));
+        BulletList.Add(new Bullet(player.Position, direction, damage, points));
+        
     }
 }

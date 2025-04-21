@@ -7,9 +7,11 @@ public class ZombieController
     public static List<Zombie> zombiesList = new List<Zombie>();
     private float collisionRadius = 25f;
     private float gridSize = 100f; // Taille des cellules de la grille
+    private Player player;
 
-    public ZombieController()
+    public ZombieController(Player player)
     {
+        this.player = player;
         CreateZombies(10); // Exemple : 50 zombies
     }
 
@@ -43,6 +45,8 @@ public class ZombieController
                 if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.radius + bullet.Radius)
                 {
                     zombie.TakeDamage(bullet.Damage);
+                    player.Score += bullet.points;
+                    HUDView.Instance.AddFloatingPoints(bullet.points);
                     BulletController.Instance.BulletList.RemoveAt(j);
                     
                     if (!zombie.IsAlive)

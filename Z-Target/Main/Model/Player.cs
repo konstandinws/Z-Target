@@ -8,15 +8,20 @@ public class Player
     public Color Color { get; set; } = Color.Blue;
     public Vector2 Direction = Vector2.Zero;
     public float AngleToMouse;
-
     private Vector2 velocity = Vector2.Zero;
     private Vector2 acceleration = Vector2.Zero;
 
     private float accelerationSpeed = 10000f;
     private float maxSpeed = 300f;
     private float friction = 0.85f; // augmenter fait effet patinoire
-
     private float minVelocity = 0.01f; // vitesse minimale avant de s'arreter
+
+    public Weapon mainWeapon;
+    public Weapon secondaryWeapon = new AK47();
+
+    public bool isReloading = false;
+
+    public int Score = 0;
     
     public void Move(float deltaTime)
     {
