@@ -3,13 +3,15 @@ using System.Numerics;
 public class Zombie
 {   
     public float Health;
+    public float MaxHealth;
     public Vector2 Position;
     public float Speed = 150;
     public bool IsAlive;
     public int radius = 27; 
 
     public Zombie(){
-        Health = 150;
+        MaxHealth = 150;
+        Health = MaxHealth;
         Position = new Vector2(Raylib.GetRandomValue(0, GameConfig.ScreenWidth), -200);
         IsAlive = true;
     }
@@ -20,4 +22,11 @@ public class Zombie
         Position += dir * Speed * dt;
     }
 
+    internal void TakeDamage(int damage)
+    {
+        Health -= damage;
+        if(Health <= 0){
+            IsAlive = false;
+        }
+    }
 }

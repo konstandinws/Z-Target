@@ -10,7 +10,7 @@ public class ZombieController
 
     public ZombieController()
     {
-        CreateZombies(20); // Exemple : 50 zombies
+        CreateZombies(10); // Exemple : 50 zombies
     }
 
     public void Update(float dt, Player player)
@@ -21,6 +21,7 @@ public class ZombieController
         }
 
         HandleCollisions();
+        HandleBulletCollisions();
     }
 
     public void CreateZombies(int count)
@@ -28,6 +29,29 @@ public class ZombieController
         for (int i = 0; i < count; i++)
         {
             zombiesList.Add(new Zombie());
+        }
+    }
+
+    private void HandleBulletCollisions()
+    {
+        for (int i = zombiesList.Count - 1; i >= 0; i--)
+        {
+            Zombie zombie = zombiesList[i];
+            for (int j = BulletController.Instance.BulletList.Count - 1; j >= 0; j--)
+            {
+                Bullet bullet = BulletController.Instance.BulletList[j];
+                if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.radius + bullet.Radius)
+                {
+                    zombie.TakeDamage(bullet.Damage);
+                    BulletController.Instance.BulletList.RemoveAt(j);
+                    
+                    if (!zombie.IsAlive)
+                    {
+                        zombiesList.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 
