@@ -29,6 +29,13 @@ public class PlayerView : IView{
     private const int WEAPON_SHOOT_FRAMES = 3;  // 3 frames pour l'animation de tir
     private const int WEAPON_RELOAD_FRAMES = 20; // 20 frames pour l'animation de rechargement
 
+    // Nouveaux sprites pour l'attaque au couteau
+    private List<Texture2D> knifeAttackSprites;
+    private const int KNIFE_ANIMATION_FRAMES = 8;
+    private const float KNIFE_ANIMATION_SPEED = 0.05f;
+    private float knifeAnimationTimer = 0f;
+    private int currentKnifeFrame = 0;
+
     public PlayerView(Player player){
         this.player = player;
         // Charger le sprite idle
@@ -52,6 +59,14 @@ public class PlayerView : IView{
 
         // Charger les sprites d'armes
         LoadWeaponSprites();
+
+        // Charger les sprites d'attaque au couteau
+        knifeAttackSprites = new List<Texture2D>();
+        for (int i = 0; i < KNIFE_ANIMATION_FRAMES; i++)
+        {
+            string spritePath = $"Main/sprites/knife/survivor-meleeattack_knife_{i}.png";
+            knifeAttackSprites.Add(Raylib.LoadTexture(spritePath));
+        }
     }
 
     private void LoadWeaponSprites()
@@ -96,7 +111,20 @@ public class PlayerView : IView{
 
     private void UpdateAnimation()
     {
-        if (player.CurrentAnimationState != Player.AnimationState.Idle)
+        if (player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
+        {
+            knifeAnimationTimer += Raylib.GetFrameTime();
+            if (knifeAnimationTimer >= KNIFE_ANIMATION_SPEED)
+            {
+                knifeAnimationTimer = 0f;
+                currentKnifeFrame = (currentKnifeFrame + 1) % KNIFE_ANIMATION_FRAMES;
+                if (currentKnifeFrame == KNIFE_ANIMATION_FRAMES - 1)
+                {
+                    player.StopKnifeAttack();
+                }
+            }
+        }
+        else if (player.CurrentAnimationState != Player.AnimationState.Idle)
         {
             animationTimer += Raylib.GetFrameTime();
             if (animationTimer >= ANIMATION_SPEED)
@@ -110,6 +138,8 @@ public class PlayerView : IView{
             // Réinitialiser l'animation quand on revient à l'état idle
             currentFrame = 0;
             animationTimer = 0f;
+            currentKnifeFrame = 0;
+            knifeAnimationTimer = 0f;
         }
     }
 
@@ -154,37 +184,35 @@ public class PlayerView : IView{
 
     private void DrawPlayerSprite()
     {
-        Texture2D currentSprite = idleSprite;
-        switch (player.CurrentAnimationState)
-        {
-            case Player.AnimationState.Walking:
-                currentSprite = walkSprites[currentFrame];
-                break;
-            case Player.AnimationState.Running:
-                currentSprite = runSprites[currentFrame];
-                break;
-        }
+        Texture2D currentSprite = GetCurrentSprite();
+        if (currentSprite.Width == 0 || currentSprite.Height == 0) return;
 
-        // Calculer la destination rectangle
-        Rectangle destRect = new Rectangle(
-            player.Position.X,
-            player.Position.Y,
-            player.Size.X,
-            player.Size.Y
-        );
+        Vector2 playerSize = new Vector2(player.Size.X, player.Size.Y);
+        float angle = player.AngleToMouse;
 
-        // Origine pour la rotation
-        Vector2 origin = player.Size / 2f;
-
-        // Dessiner le sprite avec rotation
         Raylib.DrawTexturePro(
             currentSprite,
             new Rectangle(0, 0, currentSprite.Width, currentSprite.Height),
-            destRect,
-            origin,
-            player.AngleToMouse,
+            new Rectangle(player.Position.X, player.Position.Y, playerSize.X, playerSize.Y),
+            playerSize / 2f,
+            angle,
             Color.White
         );
+    }
+
+    private Texture2D GetCurrentSprite()
+    {
+        switch (player.CurrentAnimationState)
+        {
+            case Player.AnimationState.KnifeAttack:
+                return knifeAttackSprites[currentKnifeFrame];
+            case Player.AnimationState.Walking:
+                return walkSprites[currentFrame];
+            case Player.AnimationState.Running:
+                return runSprites[currentFrame];
+            default:
+                return idleSprite;
+        }
     }
 
     private void DrawWeaponSprite()
@@ -193,28 +221,63 @@ public class PlayerView : IView{
         List<Texture2D> shootSprites;
         List<Texture2D> reloadSprites;
 
-        // Sélectionner les sprites en fonction de l'arme équipée
-        if (player.mainWeapon is AK47)
+        // Si on est en train d'attaquer au couteau, utiliser l'animation du couteau
+        if (player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
+        {
+            currentWeaponSprite = knifeAttackSprites[currentKnifeFrame];
+            // Quadrupler la taille pour l'animation du couteau
+            Vector2 knifeSize = new Vector2(player.Size.X * 2.5f, player.Size.Y * 2.5f);
+            Vector2 knifePosition = player.Position;
+            Rectangle knifeRect = new Rectangle(
+                knifePosition.X,
+                knifePosition.Y,
+                knifeSize.X,
+                knifeSize.Y
+            );
+            Vector2 knifeOrigin = knifeSize / 2f;
+            Raylib.DrawTexturePro(
+                currentWeaponSprite,
+                new Rectangle(0, 0, currentWeaponSprite.Width, currentWeaponSprite.Height),
+                knifeRect,
+                knifeOrigin,
+                player.AngleToMouse,
+                Color.White
+            );
+            return;
+        }
+
+        // Sinon, utiliser l'arme normale
+        if (player.mainWeapon.Type == WeaponType.Rifle)
         {
             currentWeaponSprite = rifleIdleSprite;
             shootSprites = rifleShootSprites;
             reloadSprites = rifleReloadSprites;
+            
+            switch (player.CurrentWeaponState)
+            {
+                case Player.WeaponAnimationState.Shooting:
+                    currentWeaponSprite = shootSprites[currentWeaponFrame];
+                    break;
+                case Player.WeaponAnimationState.Reloading:
+                    currentWeaponSprite = reloadSprites[currentWeaponFrame];
+                    break;
+            }
         }
-        else // M1911
+        else // Handgun
         {
             currentWeaponSprite = handgunIdleSprite;
             shootSprites = handgunShootSprites;
             reloadSprites = handgunReloadSprites;
-        }
-        
-        switch (player.CurrentWeaponState)
-        {
-            case Player.WeaponAnimationState.Shooting:
-                currentWeaponSprite = shootSprites[currentWeaponFrame];
-                break;
-            case Player.WeaponAnimationState.Reloading:
-                currentWeaponSprite = reloadSprites[currentWeaponFrame];
-                break;
+            
+            switch (player.CurrentWeaponState)
+            {
+                case Player.WeaponAnimationState.Shooting:
+                    currentWeaponSprite = shootSprites[currentWeaponFrame];
+                    break;
+                case Player.WeaponAnimationState.Reloading:
+                    currentWeaponSprite = reloadSprites[currentWeaponFrame];
+                    break;
+            }
         }
 
         // Position de l'arme au centre du joueur

@@ -9,8 +9,7 @@ public class Zombie
     public float Speed = 150;
     public bool IsAlive;
     public int radius = 27; 
-    public float  dropBonusChance = 0.05f;
-
+    public float dropBonusChance = 0.05f;
 
     public Zombie(){
         MaxHealth = 150;
@@ -25,14 +24,16 @@ public class Zombie
         Position += dir * Speed * dt;
     }
 
-    internal BonusType? TakeDamage(int damage)
+    public BonusType? HandleDamage(int damage)
     {
         Health -= damage;
-        if(Health <= 0){
+        if(Health <= 0)
+        {
             return Die();
         }
         return null;
     }
+
     private BonusType? Die()
     {
         IsAlive = false;

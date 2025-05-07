@@ -11,11 +11,12 @@ public class GameView
     // private BulletView bulletView;
     private HUDView hudView;
     private Player player;
-
+    private Boite boite;
     
-    public GameView(Player player)
+    public GameView(Player player, Boite boite)
     {
         this.player = player;
+        this.boite = boite;
         InitializeViews();
     }
 
@@ -27,6 +28,7 @@ public class GameView
         views.Add(new BulletView());
         views.Add(new BonusView(player));
         hudView = new HUDView(player);
+        views.Add(new BoiteView(boite));
     }
 
     public void AddZombieView()
@@ -52,7 +54,7 @@ public class GameView
 
     private void DrawViews()
     {
-        foreach (var view in views)
+        foreach (IView view in views)
             view.Draw();
         
     }
@@ -86,7 +88,7 @@ public class GameView
         Raylib.EndDrawing();
     }
     
-    private Player GetPlayerFromViews()
+    private Player GetPlayerFromViews() // pas obligatoire ????
     {
         // Récupérer le joueur depuis la PlayerView
         foreach (var view in views)

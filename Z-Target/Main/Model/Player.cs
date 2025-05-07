@@ -9,7 +9,10 @@ public class Player
     {
         Idle,
         Walking,
-        Running
+        Running,
+        Shooting,
+        Reloading,
+        KnifeAttack
     }
 
     public enum WeaponAnimationState
@@ -67,6 +70,9 @@ public class Player
     // Remplacer le bonus unique par un Dictionary pour suivre plusieurs bonus actifs
     private Dictionary<BonusType, float> activeBonuses = new Dictionary<BonusType, float>();
     
+    private float knifeAttackTimer = 0f;
+    private const float KNIFE_ATTACK_DURATION = 0.3f;
+
     public Player()
     {
         currentHealth = maxHealth; // Initialisation de la santé à sa valeur maximale
@@ -80,7 +86,7 @@ public class Player
         velocity += acceleration * deltaTime;
 
         // Mise à jour de l'état d'animation
-        UpdateAnimationState();
+        UpdateAnimationState(velocity.LengthSquared() > minVelocity * minVelocity + 800.0f, isSprinting, CurrentWeaponState == WeaponAnimationState.Shooting, isReloading);
 
         // Gestion du sprint
         UpdateSprintState(deltaTime);
@@ -352,19 +358,37 @@ public class Player
         return isInvincible;
     }
 
-    private void UpdateAnimationState()
+    private void UpdateAnimationState(bool isMoving, bool isSprinting, bool isShooting, bool isReloading)
     {
-        if (velocity.LengthSquared() < minVelocity * minVelocity + 800.0f)
+        if (CurrentAnimationState == AnimationState.KnifeAttack)
         {
-            CurrentAnimationState = AnimationState.Idle;
+            knifeAttackTimer += Raylib.GetFrameTime();
+            if (knifeAttackTimer >= KNIFE_ATTACK_DURATION)
+            {
+                CurrentAnimationState = AnimationState.Idle;
+            }
+            return;
+        }
+
+        if (isReloading)
+        {
+            CurrentAnimationState = AnimationState.Reloading;
+        }
+        else if (isShooting)
+        {
+            CurrentAnimationState = AnimationState.Shooting;
         }
         else if (isSprinting)
         {
             CurrentAnimationState = AnimationState.Running;
         }
-        else
+        else if (isMoving)
         {
             CurrentAnimationState = AnimationState.Walking;
+        }
+        else
+        {
+            CurrentAnimationState = AnimationState.Idle;
         }
     }
 
@@ -397,5 +421,16 @@ public class Player
         {
             CurrentWeaponState = WeaponAnimationState.Idle;
         }
+    }
+
+    public void StartKnifeAttack()
+    {
+        CurrentAnimationState = AnimationState.KnifeAttack;
+        knifeAttackTimer = 0f;
+    }
+
+    public void StopKnifeAttack()
+    {
+        CurrentAnimationState = AnimationState.Idle;
     }
 }

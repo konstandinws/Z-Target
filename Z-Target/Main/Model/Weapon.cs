@@ -1,8 +1,16 @@
 using System.Numerics;
 using Raylib_cs;
+
+public enum WeaponType
+{
+    Rifle,
+    Handgun
+}
+
 public abstract class Weapon{
 
     public string name;
+    public WeaponType Type { get; protected set; }
     public int Damage;
     public float FireRate;
     public float BulletSpeed;

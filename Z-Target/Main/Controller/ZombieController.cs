@@ -8,12 +8,12 @@ public class ZombieController
     private float collisionRadius = 25f;
     private float gridSize = 100f; // Taille des cellules de la grille
     private Player player;
- 
+    private List<Zombie> zombiesToRemove = new List<Zombie>();
 
     public ZombieController(Player player)
     {
         this.player = player;
-        CreateZombies(10); // Exemple : 50 zombies
+        CreateZombies(1); // Exemple : 50 zombies
     }
 
     public void Update(float dt, Player player)
@@ -26,6 +26,13 @@ public class ZombieController
         HandleCollisions();
         HandleBulletCollisions();
         HandlePlayerCollisions(player);
+
+        // Supprimer les zombies morts après toutes les mises à jour
+        foreach (var zombie in zombiesToRemove)
+        {
+            zombiesList.Remove(zombie);
+        }
+        zombiesToRemove.Clear();
     }
 
     public void CreateZombies(int count)
@@ -34,6 +41,25 @@ public class ZombieController
         {
             zombiesList.Add(new Zombie());
         }
+    }
+
+    public void HandleKnifeDamage(Zombie zombie, int damage)
+    {
+        zombie.Health -= damage;
+        if (zombie.Health <= 0)
+        {
+            zombie.IsAlive = false;
+            zombiesList.Remove(zombie);
+        }
+        
+        // Ajouter des points pour chaque coup de couteau
+        int points = 50; // Points de base pour un coup de couteau
+        if (player.HasActiveBonus(BonusType.DoublePoints))
+        {
+            points *= 2;
+        }
+        player.Score += points;
+        HUDView.Instance.AddFloatingPoints(points);
     }
 
     private void HandleBulletCollisions()
@@ -51,20 +77,19 @@ public class ZombieController
                     // Vérifier si InstaKill est actif - tuer instantanément
                     if (player.HasActiveBonus(BonusType.InstaKill))
                     {
-                        zombie.Health = 0; // Tuer instantanément
-                        bonus = zombie.TakeDamage(0); // Force la mort et récupère le bonus
+                        bonus = zombie.HandleDamage((int)zombie.MaxHealth); // Force la mort
                     }
                     else 
                     {
                         // Dégâts normaux
-                        bonus = zombie.TakeDamage(bullet.Damage);
+                        bonus = zombie.HandleDamage(bullet.Damage);
                     }
                     
                     // Calculer les points avec bonus DoublePoints si actif
                     int points = bullet.points;
                     if (player.HasActiveBonus(BonusType.DoublePoints))
                     {
-                        points *= 2; // Double les points
+                        points *= 2;
                     }
                     
                     // Attribuer les points

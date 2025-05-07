@@ -5,15 +5,16 @@ public class M1911 : Weapon
     public M1911()
     {
         name = "M1911";
-        Damage = 15;
-        FireRate = 0.3f;
-        BulletSpeed = 800f;
+        Type = WeaponType.Handgun;
+        Damage = 10;
+        FireRate = 0.2f;
+        BulletSpeed = 8f;
+        maxAmmo = 60;
+        reservAmmo = 60;
+        currentAmmo = 7;
         clipSize = 7;
-        maxAmmo = 35;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 1.0f;
-        points = 30;
+        reloadTime = 1.5f;
+        points = 5;
     }
 
     // public override void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)

@@ -8,6 +8,8 @@ public class GameController
     private PlayerController playerController; 
     private ZombieController zombieController;
     private BulletController bulletController;
+    private BoiteController boiteController;
+    private Boite boite;
     
     
     public GameController()
@@ -51,11 +53,12 @@ public class GameController
     private void InitGame()
     {
         player = new Player();
-        playerController = new PlayerController(player);
+        boite = new Boite();
         zombieController = new ZombieController(player);
+        playerController = new PlayerController(player, zombieController, view.playerView);
         bulletController = new BulletController(player); 
-        
-        view = new GameView(player);
+        boiteController = new BoiteController(boite,player);
+        view = new GameView(player, boite);
         
         // Démarrer en mode jeu actif
         GameState.Instance.StartGame();
@@ -71,7 +74,7 @@ public class GameController
             zombieController.Update(dt, player);
             bulletController.Update(dt);
             BonusController.Instance.Update(dt, player);
-            
+            boiteController.Update(dt);
             // Vérifier si le joueur est toujours en vie
             if (!player.IsAlive())
             {
@@ -109,7 +112,7 @@ public class GameController
     {
         // Réinitialiser le joueur
         player = new Player();
-        playerController = new PlayerController(player);
+        playerController = new PlayerController(player, zombieController, view.playerView);
         
         // Réinitialiser les zombies
         zombieController = new ZombieController(player);
