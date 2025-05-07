@@ -8,6 +8,7 @@ public class ZombieController
     private float collisionRadius = 25f;
     private float gridSize = 100f; // Taille des cellules de la grille
     private Player player;
+ 
 
     public ZombieController(Player player)
     {
@@ -24,6 +25,7 @@ public class ZombieController
 
         HandleCollisions();
         HandleBulletCollisions();
+        HandlePlayerCollisions(player);
     }
 
     public void CreateZombies(int count)
@@ -44,13 +46,39 @@ public class ZombieController
                 Bullet bullet = BulletController.Instance.BulletList[j];
                 if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.radius + bullet.Radius)
                 {
-                    zombie.TakeDamage(bullet.Damage);
-                    player.Score += bullet.points;
-                    HUDView.Instance.AddFloatingPoints(bullet.points);
+                    BonusType? bonus = null;
+                    
+                    // Vérifier si InstaKill est actif - tuer instantanément
+                    if (player.HasActiveBonus(BonusType.InstaKill))
+                    {
+                        zombie.Health = 0; // Tuer instantanément
+                        bonus = zombie.TakeDamage(0); // Force la mort et récupère le bonus
+                    }
+                    else 
+                    {
+                        // Dégâts normaux
+                        bonus = zombie.TakeDamage(bullet.Damage);
+                    }
+                    
+                    // Calculer les points avec bonus DoublePoints si actif
+                    int points = bullet.points;
+                    if (player.HasActiveBonus(BonusType.DoublePoints))
+                    {
+                        points *= 2; // Double les points
+                    }
+                    
+                    // Attribuer les points
+                    player.Score += points;
+                    HUDView.Instance.AddFloatingPoints(points);
+                    
                     BulletController.Instance.BulletList.RemoveAt(j);
                     
                     if (!zombie.IsAlive)
                     {
+                        if (bonus.HasValue)
+                        {
+                            BonusController.Instance.CreateBonus(zombie.Position, bonus.Value);
+                        }
                         zombiesList.RemoveAt(i);
                         break;
                     }
@@ -122,4 +150,42 @@ public class ZombieController
     {
         (0, 1), (1, 0), (1, 1), (-1, 0), (0, -1), (-1, -1), (1, -1), (-1, 1)
     };
+
+    // Méthode pour tuer tous les zombies (utilisée par le bonus Nuke)
+    public void KillAllZombies()
+    {
+        for (int i = zombiesList.Count - 1; i >= 0; i--)
+        {
+            // Possibilité de créer une animation ou effet spécial ici
+            zombiesList.RemoveAt(i);
+        }
+    }
+
+    private void HandlePlayerCollisions(Player player)
+    {
+        // Si le joueur est mort, ne pas vérifier les collisions
+        if (!player.IsAlive())
+            return;
+            
+        float playerRadius = player.Size.X / 2;
+        
+        foreach (Zombie zombie in zombiesList)
+        {
+            float distance = Vector2.Distance(zombie.Position, player.Position);
+            float minDistance = zombie.radius + playerRadius;
+            
+            if (distance < minDistance)
+            {
+                // Le zombie touche le joueur
+                player.TakeDamage(1); // Infliger 1 point de dégâts
+                
+                // Repousser légèrement le joueur loin du zombie
+                Vector2 pushDirection = Vector2.Normalize(player.Position - zombie.Position);
+                player.Position += pushDirection * 20f; // Pousser le joueur de 20 unités
+                
+                // Ne vérifier qu'une collision à la fois pour éviter de perdre trop de vie rapidement
+                return;
+            }
+        }
+    }
 }

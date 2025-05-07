@@ -9,6 +9,8 @@ public class HUDView : IView
     private Player player;
     private Random random = new Random();
 
+    private const float bonusIconSize = 30f;
+
     // Structure simple pour texte flottant
     private List<(string text, Vector2 position, Vector2 velocity, double spawnTime)> floatingTexts = new();
 
@@ -24,6 +26,9 @@ public class HUDView : IView
     {
         float deltaTime = Raylib.GetFrameTime();
 
+        // Effet d'écran rouge quand le joueur est touché
+        DrawDamageEffect();
+
         // Affichage des points
         Raylib.DrawText($"{player.Score}", GameConfig.ScreenWidth - 100, GameConfig.ScreenHeight - 100, 24, Color.Black);
 
@@ -32,15 +37,26 @@ public class HUDView : IView
         int textWidth = Raylib.MeasureText($"{player.mainWeapon.name}", 24);
         Raylib.DrawText($"{player.mainWeapon.name}", GameConfig.ScreenWidth - textWidth - 150, GameConfig.ScreenHeight - 50, 24, Color.Black);
         if(!player.isReloading){
-            Raylib.DrawText($"{weapon.currentAmmo}/{weapon.maxAmmo}", GameConfig.ScreenWidth - 130, GameConfig.ScreenHeight - 50, 24, Color.Black);
+            Raylib.DrawText($"{weapon.currentAmmo}/{weapon.reservAmmo}", GameConfig.ScreenWidth - 130, GameConfig.ScreenHeight - 50, 24, Color.Black);
         }
         
         if (player.isReloading)
         {
             DrawReloading();
         }
+        
+        // Afficher l'indicateur de sprint et la barre d'endurance
+        DrawSprintBar();
 
         DrawFloatingTexts(deltaTime);
+        
+        DrawActiveBonus();
+        
+        // Afficher l'écran de game over si le joueur est mort
+        if (!player.IsAlive())
+        {
+            DrawGameOver();
+        }
     }
 
     public void DrawReloading()
@@ -48,6 +64,70 @@ public class HUDView : IView
         Raylib.DrawCircleSector(
             new Vector2(GameConfig.ScreenWidth - 80, GameConfig.ScreenHeight - 45),20,0,360 * (player.mainWeapon.reloadTimer / player.mainWeapon.reloadTime),60,Color.DarkGray
         );
+    }
+
+    private void DrawSprintBar()
+    {
+        // Position et taille de la barre de sprint
+        int barWidth = 150;
+        int barHeight = 15;
+        int barX = 20;
+        int barY = 20;
+        
+        // Dessiner le fond de la barre (gris)
+        Raylib.DrawRectangle(barX, barY, barWidth, barHeight, Color.Gray);
+        
+        // Calculer la largeur de la barre d'endurance actuelle
+        float sprintRatio = player.GetSprintRatio();
+        int currentBarWidth = (int)(barWidth * sprintRatio);
+        
+        // Choisir une couleur en fonction de l'état de l'endurance
+        Color barColor;
+        if (sprintRatio > 0.6f)
+            barColor = Color.Green;
+        else if (sprintRatio > 0.3f)
+            barColor = Color.Yellow;
+        else
+            barColor = Color.Red;
+        
+        // Dessiner la barre d'endurance actuelle
+        Raylib.DrawRectangle(barX, barY, currentBarWidth, barHeight, barColor);
+        
+        // Dessiner le contour de la barre
+        Raylib.DrawRectangleLines(barX, barY, barWidth, barHeight, Color.Black);
+        
+        // Afficher un texte si le sprint est actif
+        if (player.IsSprinting())
+        {
+            Raylib.DrawText("SPRINT", barX + barWidth + 10, barY, 20, Color.SkyBlue);
+        }
+    }
+
+    private void DrawDamageEffect()
+    {
+        // Calculer l'intensité de l'effet rouge en fonction de la santé actuelle
+        float healthRatio = player.GetHealthRatio();
+        
+        // Effet plus intense quand la santé est basse
+        int baseAlpha = (int)(200 * (1.0f - healthRatio)); // Base alpha between 0-200
+        
+        // Si le joueur est invincible (vient d'être touché), augmenter l'intensité
+        if (player.IsInvincible())
+        {
+            // Pulsation rouge intense lors de la prise de dégâts
+            float pulseFactor = 0.8f + 0.2f * (float)Math.Sin(Raylib.GetTime() * 15.0);
+            int pulseAlpha = (int)(255 * pulseFactor);
+            
+            // Dessiner rectangle rouge semi-transparent sur tout l'écran
+            Raylib.DrawRectangle(0, 0, GameConfig.ScreenWidth, GameConfig.ScreenHeight, 
+                               new Color(255, 0, 0, Math.Min(pulseAlpha, 220)));
+        }
+        else
+        {
+            // Effet rouge plus subtil en fonction de la santé actuelle
+            Raylib.DrawRectangle(0, 0, GameConfig.ScreenWidth, GameConfig.ScreenHeight, 
+                               new Color(255, 0, 0, baseAlpha));
+        }
     }
 
     public void AddFloatingPoints(int points)
@@ -80,8 +160,77 @@ public class HUDView : IView
             Raylib.DrawText(text, (int)newPosition.X, (int)newPosition.Y, 20, Color.Red);
         }
     }
+    private void DrawActiveBonus()
+    {
+        List<BonusType> activeBonuses = player.GetActiveBonuses();
+        if (activeBonuses.Count > 0)
+        {
+            // Position de départ pour le premier bonus
+            int startY = GameConfig.ScreenHeight - 50;
+            int spacing = 40; // Espacement vertical entre les bonus
+            
+            for (int i = 0; i < activeBonuses.Count; i++)
+            {
+                BonusType bonusType = activeBonuses[i];
+                Color color = GetBonusColor(bonusType);
+                
+                // Position verticale basée sur l'index du bonus
+                int posY = startY - (i * spacing);
+                
+                // Dessiner le carré coloré
+                Raylib.DrawRectangle(10, posY, (int)bonusIconSize, (int)bonusIconSize, color);
+                
+                // Récupérer le temps restant pour le bonus
+                float remainingTime = player.GetBonusRemainingTime(bonusType);
+                
+                // Afficher le nom du bonus et le temps restant
+                Raylib.DrawText($"{bonusType} ({remainingTime:F1}s)", 10 + (int)bonusIconSize + 10, posY, 20, Color.Black);
+            }
+        }
+    }
+
+    private Color GetBonusColor(BonusType type)
+    {
+        return type switch
+        {
+            BonusType.MaxAmmo => Color.SkyBlue,
+            BonusType.InstaKill => Color.Red,
+            BonusType.DoublePoints => Color.Gold,
+            BonusType.Nuke => Color.Green,
+            _ => Color.Gray,
+        };
+    }
 
     public void NoAmmo(){
         Raylib.DrawText("No Ammo", GameConfig.ScreenWidth/2 - 50, GameConfig.ScreenHeight/2 + 70, 24, Color.Red);
+    }
+
+    public void DrawGameOver()
+    {
+        // Afficher un message de game over
+        string gameOverText = "GAME OVER";
+        int fontSize = 60;
+        
+        // Mesurer la taille du texte pour le centrer
+        int textWidth = Raylib.MeasureText(gameOverText, fontSize);
+        int textX = (GameConfig.ScreenWidth - textWidth) / 2;
+        int textY = GameConfig.ScreenHeight / 2 - fontSize;
+        
+        // Dessiner le texte avec une ombre
+        Raylib.DrawText(gameOverText, textX + 3, textY + 3, fontSize, new Color(0, 0, 0, 150));
+        Raylib.DrawText(gameOverText, textX, textY, fontSize, Color.Red);
+        
+        // Instructions pour redémarrer
+        string restartText = "Appuyez sur R pour recommencer";
+        int restartFontSize = 30;
+        
+        // Mesurer la taille du texte pour le centrer
+        int restartTextWidth = Raylib.MeasureText(restartText, restartFontSize);
+        int restartTextX = (GameConfig.ScreenWidth - restartTextWidth) / 2;
+        int restartTextY = textY + fontSize + 20;
+        
+        // Dessiner le texte avec une ombre
+        Raylib.DrawText(restartText, restartTextX + 2, restartTextY + 2, restartFontSize, new Color(0, 0, 0, 150));
+        Raylib.DrawText(restartText, restartTextX, restartTextY, restartFontSize, Color.White);
     }
 }

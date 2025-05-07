@@ -10,6 +10,7 @@ public class AK47 : Weapon
         BulletSpeed = 800f;
         clipSize = 30;
         maxAmmo = 180;
+        reservAmmo = maxAmmo;
         currentAmmo = clipSize;
         reloadTime = 2f;
         points = 10;

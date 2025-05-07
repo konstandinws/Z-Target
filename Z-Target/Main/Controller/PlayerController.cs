@@ -31,6 +31,10 @@ public class PlayerController {
         if (Raylib.IsKeyDown(KeyboardKey.A)) direction.X -= 1;
         if (Raylib.IsKeyDown(KeyboardKey.D)) direction.X += 1;
 
+        // Détecter si le joueur appuie sur Shift pour sprinter
+        bool isSprinting = Raylib.IsKeyDown(KeyboardKey.LeftShift) || Raylib.IsKeyDown(KeyboardKey.RightShift);
+        player.SetSprinting(isSprinting);
+
         player.Direction = direction != Vector2.Zero ? Vector2.Normalize(direction) : Vector2.Zero;
     }
 
@@ -39,16 +43,22 @@ public class PlayerController {
         if (Raylib.IsMouseButtonDown(MouseButton.Left) && player.mainWeapon.currentAmmo > 0 && !player.isReloading)
         {
             player.mainWeapon.Shoot(player.Position, mouseWorldPos, BulletController.Instance);
+            player.StartShooting();
+        }
+        else
+        {
+            player.StopShooting();
         }
     }
 
     private void HandleReload()
     {
-        if (Raylib.IsKeyPressed(KeyboardKey.R) && player.mainWeapon.currentAmmo < player.mainWeapon.clipSize && !player.isReloading && player.mainWeapon.maxAmmo > 0)
+        if (Raylib.IsKeyPressed(KeyboardKey.R) && player.mainWeapon.currentAmmo < player.mainWeapon.clipSize && !player.isReloading && player.mainWeapon.reservAmmo > 0)
         {
             player.isReloading = true;
             player.mainWeapon.reloadTimer = 0f;
             player.mainWeapon.Reload();
+            player.StartReload();
         }
 
         if (player.isReloading)
@@ -58,9 +68,10 @@ public class PlayerController {
             {
                 player.mainWeapon.currentAmmo = player.mainWeapon.clipSize;
                 player.isReloading = false;
+                player.FinishReload();
             }
         }
-        if(player.mainWeapon.maxAmmo == 0 && player.mainWeapon.currentAmmo == 0){
+        if(player.mainWeapon.reservAmmo == 0 && player.mainWeapon.currentAmmo == 0){
             HUDView.Instance.NoAmmo();
         }
     }

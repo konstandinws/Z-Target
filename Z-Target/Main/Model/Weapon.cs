@@ -8,6 +8,7 @@ public abstract class Weapon{
     public float BulletSpeed;
     protected float lastShotTime = 0;
     public int maxAmmo;
+    public int reservAmmo;
     public int currentAmmo;
     public int clipSize;
     public float reloadTimer = 0f;
@@ -25,14 +26,18 @@ public abstract class Weapon{
         }
     }
     public virtual void Reload(){
-        maxAmmo += currentAmmo;
+        reservAmmo += currentAmmo;
 
-        if (maxAmmo >= clipSize) {
+        if (reservAmmo >= clipSize) {
             currentAmmo = clipSize;
-            maxAmmo -= clipSize;
+            reservAmmo -= clipSize;
         } else {
-            currentAmmo = maxAmmo;
-            maxAmmo = 0;
+            currentAmmo = reservAmmo;
+            reservAmmo = 0;
         }
+    }
+
+    public void resplenishAmmo(){
+        reservAmmo = maxAmmo;
     }
 }

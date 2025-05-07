@@ -9,9 +9,10 @@ public class M1911 : Weapon
         FireRate = 0.3f;
         BulletSpeed = 800f;
         clipSize = 7;
-        maxAmmo = 0;
+        maxAmmo = 35;
+        reservAmmo = maxAmmo;
         currentAmmo = clipSize;
-        reloadTime = 1.5f;
+        reloadTime = 1.0f;
         points = 30;
     }
 

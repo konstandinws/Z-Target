@@ -20,6 +20,7 @@ public class GameView
         views.Add(new PlayerView(player));
         views.Add(new ZombieView());
         views.Add(new BulletView());
+        views.Add(new BonusView(player));
         hudView = new HUDView(player);
     }
 
@@ -38,7 +39,22 @@ public class GameView
     {
         foreach (var view in views)
             view.Draw();
+        
     }
+
+    public void UpdatePlayer(Player player)
+    {
+        // Recréer les vues avec le nouveau joueur
+        views.Clear();
+        views.Add(new PlayerView(player));
+        views.Add(new ZombieView());
+        views.Add(new BulletView());
+        views.Add(new BonusView(player));
+        
+        // Créer une nouvelle instance de HUDView
+        hudView = new HUDView(player);
+    }
+    
     public void Render(Camera2D camera)
     {
         Raylib.BeginDrawing(); 
@@ -50,19 +66,26 @@ public class GameView
         // Draw a grid
         DrawGrid(50);
 
-        // playerView.Draw();
-        // zombieView.Draw();
-        // bulletView.Draw(); 
         DrawViews();
-
-        // Raylib.DrawText("test 2D",20,20,20,Color.Red);
 
         Raylib.EndMode2D();
         hudView.Draw();
 
-        // Raylib.DrawText(Raylib.GetFPS().ToString(),20,60,20,Color.Red);
-
-
         Raylib.EndDrawing();
+    }
+    
+    private Player GetPlayerFromViews()
+    {
+        // Récupérer le joueur depuis la PlayerView
+        foreach (var view in views)
+        {
+            if (view is PlayerView playerView)
+            {
+                return playerView.GetPlayer();
+            }
+        }
+        
+        // Fallback (ne devrait jamais arriver)
+        return null;
     }
 }

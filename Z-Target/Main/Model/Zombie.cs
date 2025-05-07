@@ -1,5 +1,6 @@
 using Raylib_cs;
 using System.Numerics;
+using System;
 public class Zombie
 {   
     public float Health;
@@ -8,6 +9,8 @@ public class Zombie
     public float Speed = 150;
     public bool IsAlive;
     public int radius = 27; 
+    public float  dropBonusChance = 0.9f;
+
 
     public Zombie(){
         MaxHealth = 150;
@@ -22,11 +25,47 @@ public class Zombie
         Position += dir * Speed * dt;
     }
 
-    internal void TakeDamage(int damage)
+    internal BonusType? TakeDamage(int damage)
     {
         Health -= damage;
         if(Health <= 0){
-            IsAlive = false;
+            return Die();
         }
+        return null;
+    }
+    private BonusType? Die()
+    {
+        IsAlive = false;
+
+        // Probabilité de drop d'un bonus (20 % par exemple)
+       
+        if (GetRandomFloat() < dropBonusChance)
+        {
+            // Random bonus (par exemple MaxAmmo ou InstaKill)
+            BonusType bonusType = GetRandomBonusType();
+            return bonusType;
+        }
+
+        return null;  // Pas de bonus
+    }
+
+    private float GetRandomFloat()
+    {
+        Random rnd = new Random();
+        return (float)rnd.NextDouble();  // Entre 0.0 et 1.0
+    }
+    private BonusType GetRandomBonusType()
+    {
+        BonusType[] possibleBonuses = new BonusType[]
+        {
+            BonusType.MaxAmmo,
+            BonusType.InstaKill,
+            BonusType.DoublePoints,
+            BonusType.Nuke,
+        };
+
+        Random rnd = new Random();
+        int index = rnd.Next(possibleBonuses.Length);
+        return possibleBonuses[index];
     }
 }
