@@ -10,18 +10,33 @@ public class GameView
     // private ZombieView zombieView;
     // private BulletView bulletView;
     private HUDView hudView;
+    private Player player;
 
     
     public GameView(Player player)
     {
-        // playerView = new PlayerView(player);
-        // zombieView = new ZombieView();
-        // bulletView = new BulletView();
+        this.player = player;
+        InitializeViews();
+    }
+
+    private void InitializeViews()
+    {
+        views.Clear();
         views.Add(new PlayerView(player));
-        views.Add(new ZombieView());
+        views.Add(new ZombieView(player));
         views.Add(new BulletView());
         views.Add(new BonusView(player));
         hudView = new HUDView(player);
+    }
+
+    public void AddZombieView()
+    {
+        views.Add(new ZombieView(player));
+    }
+
+    public void ResetViews()
+    {
+        InitializeViews();
     }
 
     private void DrawGrid(int spacing){
@@ -44,15 +59,8 @@ public class GameView
 
     public void UpdatePlayer(Player player)
     {
-        // Recréer les vues avec le nouveau joueur
-        views.Clear();
-        views.Add(new PlayerView(player));
-        views.Add(new ZombieView());
-        views.Add(new BulletView());
-        views.Add(new BonusView(player));
-        
-        // Créer une nouvelle instance de HUDView
-        hudView = new HUDView(player);
+        this.player = player;
+        InitializeViews();
     }
     
     public void Render(Camera2D camera)
@@ -69,7 +77,11 @@ public class GameView
         DrawViews();
 
         Raylib.EndMode2D();
-        hudView.Draw();
+        
+        if (hudView != null)
+        {
+            hudView.Draw();
+        }
 
         Raylib.EndDrawing();
     }

@@ -9,7 +9,7 @@ public class Zombie
     public float Speed = 150;
     public bool IsAlive;
     public int radius = 27; 
-    public float  dropBonusChance = 0.9f;
+    public float  dropBonusChance = 0.05f;
 
 
     public Zombie(){
