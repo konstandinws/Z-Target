@@ -55,7 +55,7 @@ public class GameController
         player = new Player();
         boite = new Boite();
         zombieController = new ZombieController(player);
-        playerController = new PlayerController(player, zombieController, view.playerView);
+        playerController = new PlayerController(player, zombieController);
         bulletController = new BulletController(player); 
         boiteController = new BoiteController(boite,player);
         view = new GameView(player, boite);
@@ -112,7 +112,7 @@ public class GameController
     {
         // Réinitialiser le joueur
         player = new Player();
-        playerController = new PlayerController(player, zombieController, view.playerView);
+        playerController = new PlayerController(player, zombieController);
         
         // Réinitialiser les zombies
         zombieController = new ZombieController(player);

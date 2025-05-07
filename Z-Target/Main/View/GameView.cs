@@ -6,9 +6,6 @@ public class GameView
 {
     List<IView> views = new List<IView>();
 
-    // private PlayerView playerView;
-    // private ZombieView zombieView;
-    // private BulletView bulletView;
     private HUDView hudView;
     private Player player;
     private Boite boite;
