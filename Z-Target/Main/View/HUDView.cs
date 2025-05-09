@@ -44,6 +44,13 @@ public class HUDView : IView
         {
             DrawReloading();
         }
+
+        if(player.mainWeapon.currentAmmo == 0 && player.mainWeapon.reservAmmo > 0){
+            Raylib.DrawText("Reload", GameConfig.ScreenWidth/2 - 50, GameConfig.ScreenHeight/2 + 70, 24, Color.Red);
+        }
+        if(player.mainWeapon.reservAmmo == 0 && player.mainWeapon.currentAmmo == 0){
+            NoAmmo();
+        }
         
         // Afficher l'indicateur de sprint et la barre d'endurance
         DrawSprintBar();
@@ -51,11 +58,27 @@ public class HUDView : IView
         DrawFloatingTexts(deltaTime);
         
         DrawActiveBonus();
+
+        DrawRound();
         
         // Afficher l'écran de game over si le joueur est mort
         if (!player.IsAlive())
         {
             DrawGameOver();
+        }
+    }
+
+    public void DrawRound()
+    {
+        Raylib.DrawText($"Round {RoundController.Instance.CurrentRound + 1}", GameConfig.ScreenWidth - 150, 10, 24, Color.Black);
+        Raylib.DrawText($"Zombies left: {RoundController.Instance.zombiesToSpawn - RoundController.Instance.zombiesKilled}", GameConfig.ScreenWidth - 250, 40, 24, Color.Black);
+
+        // Afficher le compte à rebours si on est en transition
+        if (RoundController.Instance.isRoundTransitioning)
+        {
+            string countdownText = $"Next round in {Math.Ceiling(RoundController.Instance.roundTransitionTimer)}s";
+            int textWidth = Raylib.MeasureText(countdownText, 30);
+            Raylib.DrawText(countdownText, GameConfig.ScreenWidth/2 - textWidth/2, GameConfig.ScreenHeight - 100, 30, Color.Red);
         }
     }
 
@@ -220,17 +243,17 @@ public class HUDView : IView
         Raylib.DrawText(gameOverText, textX + 3, textY + 3, fontSize, new Color(0, 0, 0, 150));
         Raylib.DrawText(gameOverText, textX, textY, fontSize, Color.Red);
         
-        // Instructions pour redémarrer
-        string restartText = "Appuyez sur R pour recommencer";
-        int restartFontSize = 30;
+        // Instructions pour quitter
+        string quitText = "Appuyez sur R pour quitter";
+        int quitFontSize = 30;
         
         // Mesurer la taille du texte pour le centrer
-        int restartTextWidth = Raylib.MeasureText(restartText, restartFontSize);
-        int restartTextX = (GameConfig.ScreenWidth - restartTextWidth) / 2;
-        int restartTextY = textY + fontSize + 20;
+        int quitTextWidth = Raylib.MeasureText(quitText, quitFontSize);
+        int quitTextX = (GameConfig.ScreenWidth - quitTextWidth) / 2;
+        int quitTextY = textY + fontSize + 20;
         
         // Dessiner le texte avec une ombre
-        Raylib.DrawText(restartText, restartTextX + 2, restartTextY + 2, restartFontSize, new Color(0, 0, 0, 150));
-        Raylib.DrawText(restartText, restartTextX, restartTextY, restartFontSize, Color.White);
+        Raylib.DrawText(quitText, quitTextX + 2, quitTextY + 2, quitFontSize, new Color(0, 0, 0, 150));
+        Raylib.DrawText(quitText, quitTextX, quitTextY, quitFontSize, Color.White);
     }
 }

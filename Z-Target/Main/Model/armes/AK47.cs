@@ -1,28 +1,22 @@
 using System.Numerics;
 using Raylib_cs;
+
 public class AK47 : Weapon
 {
+
     public AK47()
     {
         name = "AK-47";
+        Type = WeaponType.Rifle;
         Damage = 30;
-        FireRate = 0.2f;
-        BulletSpeed = 800f;
+        FireRate = 0.12f;
+        BulletSpeed = 900f;
         clipSize = 30;
-        maxAmmo = 180;
+        maxAmmo = 90;
         reservAmmo = maxAmmo;
         currentAmmo = clipSize;
-        reloadTime = 2f;
-        points = 10;
+        reloadTime = 2.2f;
+        points = 12;
+        spreadAngle = 2f;
     }
-
-    // public override void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
-    // {
-    //     if (Raylib.GetTime() - lastShotTime >= FireRate)
-    //     {
-    //         bulletController.ShootBullet(direction, Damage, points);
-    //         lastShotTime = (float)Raylib.GetTime();
-    //         currentAmmo--;
-    //     }
-    // }
 }

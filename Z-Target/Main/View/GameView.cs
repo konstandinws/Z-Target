@@ -9,12 +9,16 @@ public class GameView
     private HUDView hudView;
     private Player player;
     private Boite boite;
+    private Texture2D mapTexture;
     
     public GameView(Player player, Boite boite)
     {
         this.player = player;
         this.boite = boite;
         InitializeViews();
+        
+        // Charger la texture de la carte
+        mapTexture = Raylib.LoadTexture("Main/sprites/map.png");
     }
 
     private void InitializeViews()
@@ -49,6 +53,27 @@ public class GameView
             }
     }
 
+    private void DrawMapLimits()
+    {
+        // Calculer les coordonnées des limites de la zone de jeu
+        int offset = (GameConfig.MAP_SIZE - GameConfig.PLAY_AREA_SIZE) / 2;
+        int wallThickness = 10;
+
+        // Mur du haut
+        Raylib.DrawRectangle(offset, offset, GameConfig.PLAY_AREA_SIZE, wallThickness, Color.Black);
+        
+        // Mur du bas
+        Raylib.DrawRectangle(offset, offset + GameConfig.PLAY_AREA_SIZE - wallThickness, 
+            GameConfig.PLAY_AREA_SIZE, wallThickness, Color.Black);
+        
+        // Mur de gauche
+        Raylib.DrawRectangle(offset, offset, wallThickness, GameConfig.PLAY_AREA_SIZE, Color.Black);
+        
+        // Mur de droite
+        Raylib.DrawRectangle(offset + GameConfig.PLAY_AREA_SIZE - wallThickness, offset, 
+            wallThickness, GameConfig.PLAY_AREA_SIZE, Color.Black);
+    }
+
     private void DrawViews()
     {
         foreach (IView view in views)
@@ -68,10 +93,16 @@ public class GameView
 
         Raylib.ClearBackground(Color.RayWhite);
 
-        Raylib.BeginMode2D(camera); // dans mode 2d ca bouge pas hors ca bouge avec le joueur
+        Raylib.BeginMode2D(camera);
 
-        // Draw a grid
-        DrawGrid(50);
+        // Dessiner la carte
+        if (mapTexture.Width > 0 && mapTexture.Height > 0)
+        {
+            Raylib.DrawTexture(mapTexture, 0, 0, Color.White);
+        }
+
+        // Dessiner les limites de la zone de jeu
+        DrawMapLimits();
 
         DrawViews();
 
@@ -85,18 +116,18 @@ public class GameView
         Raylib.EndDrawing();
     }
     
-    private Player GetPlayerFromViews() // pas obligatoire ????
-    {
-        // Récupérer le joueur depuis la PlayerView
-        foreach (var view in views)
-        {
-            if (view is PlayerView playerView)
-            {
-                return playerView.GetPlayer();
-            }
-        }
+    // private Player GetPlayerFromViews() // pas obligatoire ????
+    // {
+    //     // Récupérer le joueur depuis la PlayerView
+    //     foreach (var view in views)
+    //     {
+    //         if (view is PlayerView playerView)
+    //         {
+    //             return playerView.GetPlayer();
+    //         }
+    //     }
         
-        // Fallback (ne devrait jamais arriver)
-        return null;
-    }
+    //     // Fallback (ne devrait jamais arriver)
+    //     return null;
+    // }
 }

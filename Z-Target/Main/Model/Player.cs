@@ -73,9 +73,14 @@ public class Player
     private float knifeAttackTimer = 0f;
     private const float KNIFE_ATTACK_DURATION = 0.3f;
 
+    
+    private const int PLAY_AREA_OFFSET = (GameConfig.MAP_SIZE - GameConfig.PLAY_AREA_SIZE) / 2;  // 600 pixels de marge de chaque côté
+
     public Player()
     {
-        currentHealth = maxHealth; // Initialisation de la santé à sa valeur maximale
+        currentHealth = maxHealth;
+        // Centrer le joueur sur la map
+        Position = new Vector2(GameConfig.MAP_SIZE / 2, GameConfig.MAP_SIZE / 2);
     }
     
     public void Move(float deltaTime)
@@ -102,7 +107,14 @@ public class Player
         if (velocity.LengthSquared() < minVelocity * minVelocity)
             velocity = Vector2.Zero;
 
+        // Mettre à jour la position
         Position += velocity * deltaTime;
+
+        // Limiter la position du joueur à la zone de jeu de 2000x2000 pixels au centre de la map
+        Position = new Vector2(
+            Math.Clamp(Position.X, PLAY_AREA_OFFSET + Size.X/2, PLAY_AREA_OFFSET + GameConfig.PLAY_AREA_SIZE - Size.X/2),
+            Math.Clamp(Position.Y, PLAY_AREA_OFFSET + Size.Y/2, PLAY_AREA_OFFSET + GameConfig.PLAY_AREA_SIZE - Size.Y/2)
+        );
         
         // Mettre à jour les timers de tous les bonus actifs
         UpdateBonusTimers(deltaTime);

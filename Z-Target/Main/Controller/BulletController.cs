@@ -4,10 +4,10 @@ public class BulletController{
 
     public static BulletController Instance { get; private set; } // singleton
     public List<Bullet> BulletList = new List<Bullet>();
-    Player player;
+    Player Player;
 
     public BulletController(Player player){
-        this.player = player;
+        this.Player = player;
         if (Instance != null) // verification pour le singleton
             throw new Exception("Une seule instance de BulletController est autorisée.");
         Instance = this; // pour le singleton 
@@ -28,13 +28,17 @@ public class BulletController{
 
     private bool IsOutOfBounds(Vector2 pos)
     {
-        return pos.X < 0 || pos.X > GameConfig.ScreenWidth || pos.Y < 0 || pos.Y > GameConfig.ScreenHeight;
+        if (Vector2.Distance(pos, Player.Position) > 1500)
+        {
+            return true;
+        }
+        return false;
     }
 
     public void ShootBullet(Vector2 targetPos, int damage, int points)
     {
-        Vector2 direction = Vector2.Normalize(targetPos - player.Position);
-        BulletList.Add(new Bullet(player.Position, direction, damage, points));
+        Vector2 direction = Vector2.Normalize(targetPos - Player.Position);
+        BulletList.Add(new Bullet(Player.Position, direction, damage, points));
         
     }
 }

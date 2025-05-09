@@ -18,6 +18,10 @@ public class PlayerView : IView{
     private List<Texture2D> handgunShootSprites;
     private List<Texture2D> handgunReloadSprites;
     
+    private Texture2D shotgunIdleSprite;
+    private List<Texture2D> shotgunShootSprites;
+    private List<Texture2D> shotgunReloadSprites;
+    
     private float animationTimer = 0f;
     private float weaponAnimationTimer = 0f;
     private const float ANIMATION_SPEED = 0.05f;
@@ -99,6 +103,21 @@ public class PlayerView : IView{
         {
             string spritePath = $"Main/sprites/handgun/reload/survivor-reload_handgun_{i}.png";
             handgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
+        }
+
+        // Charger les sprites du shotgun
+        shotgunIdleSprite = Raylib.LoadTexture("Main/sprites/shotgun/idle/survivor-idle_shotgun_0.png");
+        shotgunShootSprites = new List<Texture2D>();
+        for (int i = 0; i < WEAPON_SHOOT_FRAMES; i++)
+        {
+            string spritePath = $"Main/sprites/shotgun/shoot/survivor-shoot_shotgun_{i}.png";
+            shotgunShootSprites.Add(Raylib.LoadTexture(spritePath));
+        }
+        shotgunReloadSprites = new List<Texture2D>();
+        for (int i = 0; i < WEAPON_RELOAD_FRAMES; i++)
+        {
+            string spritePath = $"Main/sprites/shotgun/reload/survivor-reload_shotgun_{i}.png";
+            shotgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
         }
     }
 
@@ -247,37 +266,33 @@ public class PlayerView : IView{
         }
 
         // Sinon, utiliser l'arme normale
-        if (player.mainWeapon.Type == WeaponType.Rifle)
+        switch (player.mainWeapon.Type)
         {
-            currentWeaponSprite = rifleIdleSprite;
-            shootSprites = rifleShootSprites;
-            reloadSprites = rifleReloadSprites;
-            
-            switch (player.CurrentWeaponState)
-            {
-                case Player.WeaponAnimationState.Shooting:
-                    currentWeaponSprite = shootSprites[currentWeaponFrame];
-                    break;
-                case Player.WeaponAnimationState.Reloading:
-                    currentWeaponSprite = reloadSprites[currentWeaponFrame];
-                    break;
-            }
+            case WeaponType.Rifle:
+                currentWeaponSprite = rifleIdleSprite;
+                shootSprites = rifleShootSprites;
+                reloadSprites = rifleReloadSprites;
+                break;
+            case WeaponType.Shotgun:
+                currentWeaponSprite = shotgunIdleSprite;
+                shootSprites = shotgunShootSprites;
+                reloadSprites = shotgunReloadSprites;
+                break;
+            default: // Handgun
+                currentWeaponSprite = handgunIdleSprite;
+                shootSprites = handgunShootSprites;
+                reloadSprites = handgunReloadSprites;
+                break;
         }
-        else // Handgun
+        
+        switch (player.CurrentWeaponState)
         {
-            currentWeaponSprite = handgunIdleSprite;
-            shootSprites = handgunShootSprites;
-            reloadSprites = handgunReloadSprites;
-            
-            switch (player.CurrentWeaponState)
-            {
-                case Player.WeaponAnimationState.Shooting:
-                    currentWeaponSprite = shootSprites[currentWeaponFrame];
-                    break;
-                case Player.WeaponAnimationState.Reloading:
-                    currentWeaponSprite = reloadSprites[currentWeaponFrame];
-                    break;
-            }
+            case Player.WeaponAnimationState.Shooting:
+                currentWeaponSprite = shootSprites[currentWeaponFrame];
+                break;
+            case Player.WeaponAnimationState.Reloading:
+                currentWeaponSprite = reloadSprites[currentWeaponFrame];
+                break;
         }
 
         // Position de l'arme au centre du joueur

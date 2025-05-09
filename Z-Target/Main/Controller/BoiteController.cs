@@ -3,45 +3,45 @@ using Raylib_cs;
 
 public class BoiteController
 {
-    private Boite box;
-    private Player player;
-    private float interactionRange = 40f;
-    private float lastInteractionTime = 0f;
+    private Boite Box;
+    private Player Player;
+    private float InteractionRange = 40f;
+    private float LastInteractionTime = 0f;
     private const float INTERACTION_COOLDOWN = 0.5f;
 
     public BoiteController(Boite box, Player player)
     {
-        this.box = box;
-        this.player = player;
+        this.Box = box;
+        this.Player = player;
     }
 
     public void Update(float dt)
     {
-        float distance = Vector2.Distance(player.Position, box.Position);
+        float distance = Vector2.Distance(Player.Position, Box.Position);
         float currentTime = (float)Raylib.GetTime();
 
-        if (distance < interactionRange && Raylib.IsKeyPressed(KeyboardKey.F) && !box.IsOpen && currentTime - lastInteractionTime >= INTERACTION_COOLDOWN)
+        if (distance < InteractionRange && Raylib.IsKeyPressed(KeyboardKey.F) && !Box.IsOpen && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
         {
             Console.WriteLine("Open box");
-            if (box.CanOpen(player))
+            if (Box.CanOpen(Player))
             {
-                box.Open(player);
-                lastInteractionTime = currentTime;
+                Box.Open(Player);
+                LastInteractionTime = currentTime;
             }
         }
-        if(box.IsOpen){
-            box.TimeToDisappear(dt);
-            if(Raylib.IsKeyPressed(KeyboardKey.F) && currentTime - lastInteractionTime >= INTERACTION_COOLDOWN)
+        if(Box.IsOpen){
+            Box.TimeToDisappear(dt);
+            if(Raylib.IsKeyPressed(KeyboardKey.F) && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
             {
                 Console.WriteLine("Accept weapon");
-                box.AcceptWeapon(player);
-                box.Close();
-                lastInteractionTime = currentTime;
+                Box.AcceptWeapon(Player);
+                Box.Close();
+                LastInteractionTime = currentTime;
             }
-            if (box.WeaponTimeToDisappear <= 0)
+            if (Box.WeaponTimeToDisappear <= 0)
             {
                 Console.WriteLine("Close box");
-                box.Close();
+                Box.Close();
             }
         }
     }

@@ -11,11 +11,12 @@ public class Zombie
     public int radius = 27; 
     public float dropBonusChance = 0.05f;
 
-    public Zombie(){
-        MaxHealth = 150;
-        Health = MaxHealth;
-        Position = new Vector2(Raylib.GetRandomValue(0, GameConfig.ScreenWidth), -200);
+    public Zombie(Vector2 position, float health, float speed){
+        MaxHealth = health;
+        Health = health;
+        Position = position;
         IsAlive = true;
+        Speed = speed;
     }
 
     public void Move(float dt, Vector2 target) // je met target et pas joueur pour le Quick Revive je met target au loin en gros

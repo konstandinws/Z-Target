@@ -5,7 +5,6 @@ public enum GameStateType
 {
     MainMenu,
     Playing,
-    Paused,
     GameOver
 }
 
@@ -42,11 +41,7 @@ public class GameState
         ChangeState(GameStateType.Playing);
     }
     
-    public void PauseGame()
-    {
-        ChangeState(GameStateType.Paused);
-    }
-    
+
     public void ResumeGame()
     {
         ChangeState(GameStateType.Playing);
@@ -68,10 +63,6 @@ public class GameState
         return CurrentState == GameStateType.Playing;
     }
     
-    public bool IsPaused()
-    {
-        return CurrentState == GameStateType.Paused;
-    }
     
     public bool IsGameOver()
     {

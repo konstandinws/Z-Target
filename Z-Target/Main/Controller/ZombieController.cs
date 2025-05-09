@@ -9,11 +9,11 @@ public class ZombieController
     private float gridSize = 100f; // Taille des cellules de la grille
     private Player player;
     private List<Zombie> zombiesToRemove = new List<Zombie>();
-
-    public ZombieController(Player player)
+    private RoundController roundController;
+    public ZombieController(Player player, RoundController roundController)
     {
         this.player = player;
-        CreateZombies(1); // Exemple : 50 zombies
+        this.roundController = roundController;
     }
 
     public void Update(float dt, Player player)
@@ -35,13 +35,25 @@ public class ZombieController
         zombiesToRemove.Clear();
     }
 
-    public void CreateZombies(int count)
+    public void CreateZombies(float health, float speed)
     {
-        for (int i = 0; i < count; i++)
-        {
-            zombiesList.Add(new Zombie());
-        }
+        Vector2 spawnPosition = GetRandomSpawnPosition();
+
+        Zombie zombie = new Zombie(spawnPosition, health, speed);
+        zombiesList.Add(zombie);
     }
+
+    private Vector2 GetRandomSpawnPosition()
+{
+    // Spawn autour de la map (hors de l'écran par exemple)
+    float distanceFromPlayer = 1000f;  // 600 unités du joueur
+    double angle = Raylib.GetRandomValue(0, 360) * Math.PI / 180.0;
+
+    float x = player.Position.X + (float)Math.Cos(angle) * distanceFromPlayer;
+    float y = player.Position.Y + (float)Math.Sin(angle) * distanceFromPlayer;
+
+    return new Vector2(x, y);
+}
 
     public void HandleKnifeDamage(Zombie zombie, int damage)
     {
@@ -50,6 +62,7 @@ public class ZombieController
         {
             zombie.IsAlive = false;
             zombiesList.Remove(zombie);
+            roundController.OnZombieKilled();
         }
         
         // Ajouter des points pour chaque coup de couteau
@@ -105,6 +118,7 @@ public class ZombieController
                             BonusController.Instance.CreateBonus(zombie.Position, bonus.Value);
                         }
                         zombiesList.RemoveAt(i);
+                        roundController.OnZombieKilled();
                         break;
                     }
                 }
@@ -114,67 +128,30 @@ public class ZombieController
 
     private void HandleCollisions()
     {
-        Dictionary<(int, int), List<Zombie>> spatialGrid = new Dictionary<(int, int), List<Zombie>>();
-
-        // Placer les zombies dans une grille
-        foreach (var zombie in zombiesList)
+        // Vérifier les collisions entre chaque paire de zombies
+        for (int i = 0; i < zombiesList.Count; i++)
         {
-            var cell = GetCell(zombie.Position);
-            if (!spatialGrid.ContainsKey(cell))
-                spatialGrid[cell] = new List<Zombie>();
-
-            spatialGrid[cell].Add(zombie);
-        }
-
-        // Détecter collisions dans chaque cellule et les voisines
-        foreach (var cell in spatialGrid.Keys)
-        {
-            List<Zombie> currentCellZombies = spatialGrid[cell];
-
-            for (int i = 0; i < currentCellZombies.Count; i++)
+            for (int j = i + 1; j < zombiesList.Count; j++)
             {
-                for (int j = i + 1; j < currentCellZombies.Count; j++)
-                {
-                    ResolveCollision(currentCellZombies[i], currentCellZombies[j]);
-                }
+                Zombie zombie1 = zombiesList[i];
+                Zombie zombie2 = zombiesList[j];
+                
+                float distance = Vector2.Distance(zombie1.Position, zombie2.Position);
+                float minDist = collisionRadius * 2;
 
-                foreach (var offset in neighborOffsets)
+                if (distance < minDist && distance > 0.001f)
                 {
-                    var neighborCell = (cell.Item1 + offset.Item1, cell.Item2 + offset.Item2);
-                    if (!spatialGrid.ContainsKey(neighborCell)) continue;
-
-                    foreach (var neighborZombie in spatialGrid[neighborCell])
-                    {
-                        ResolveCollision(currentCellZombies[i], neighborZombie);
-                    }
+                    // Calculer la direction de poussée
+                    Vector2 pushDir = Vector2.Normalize(zombie1.Position - zombie2.Position);
+                    float pushAmount = (minDist - distance) * 0.5f;
+                    
+                    // Appliquer la poussée aux deux zombies
+                    zombie1.Position += pushDir * pushAmount;
+                    zombie2.Position -= pushDir * pushAmount;
                 }
             }
         }
     }
-
-    private (int, int) GetCell(Vector2 position)
-    {
-        return ((int)(position.X / gridSize), (int)(position.Y / gridSize));
-    }
-
-    private void ResolveCollision(Zombie a, Zombie b)
-    {
-        float distance = Vector2.Distance(a.Position, b.Position);
-        float minDist = collisionRadius * 2;
-
-        if (distance < minDist && distance > 0.001f)
-        {
-            Vector2 pushDir = Vector2.Normalize(a.Position - b.Position);
-            float pushAmount = (minDist - distance) * 0.5f;
-            a.Position += pushDir * pushAmount;
-            b.Position -= pushDir * pushAmount;
-        }
-    }
-
-    private static readonly (int, int)[] neighborOffsets = new (int, int)[]
-    {
-        (0, 1), (1, 0), (1, 1), (-1, 0), (0, -1), (-1, -1), (1, -1), (-1, 1)
-    };
 
     // Méthode pour tuer tous les zombies (utilisée par le bonus Nuke)
     public void KillAllZombies()

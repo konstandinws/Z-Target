@@ -9,8 +9,8 @@ public class BonusController
 
     public List<Bonus> BonusList = new List<Bonus>();
 
-    private float bonusRadius = 25f;  // Rayon du bonus pour collisions
-    private float bonusDuration = 10f;
+    private float BonusRadius = 25f;  // Rayon du bonus pour collisions
+    private float BonusDuration = 10f;
 
     private BonusController() { }
 
@@ -28,7 +28,7 @@ public class BonusController
             bonus.Update(deltaTime);
 
             // Vérifie si le joueur ramasse le bonus
-            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < bonusRadius + player.Size.X/2)
+            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < BonusRadius + player.Size.X/2)
             {
                 bonus.Collect();
                 ApplyBonus(player, bonus.Type);
@@ -52,10 +52,10 @@ public class BonusController
                 player.secondaryWeapon.resplenishAmmo();  // Remplit les munitions
                 break;
             case BonusType.InstaKill:
-                player.EnableInstaKill(bonusDuration);  // InstaKill pendant 10 sec
+                player.EnableInstaKill(BonusDuration);  // InstaKill pendant 10 sec
                 break;
             case BonusType.DoublePoints:
-                player.EnableDoublePoints(bonusDuration);  // Double points 10 sec
+                player.EnableDoublePoints(BonusDuration);  // Double points 10 sec
                 break;
             case BonusType.Nuke:
                 // Effet Nuke : tue tous les zombies

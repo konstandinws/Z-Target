@@ -6,24 +6,14 @@ public class M1911 : Weapon
     {
         name = "M1911";
         Type = WeaponType.Handgun;
-        Damage = 10;
-        FireRate = 0.2f;
-        BulletSpeed = 8f;
-        maxAmmo = 60;
-        reservAmmo = 60;
-        currentAmmo = 7;
+        Damage = 12;
+        FireRate = 0.3f;
+        BulletSpeed = 800f;
         clipSize = 7;
+        maxAmmo = 56;
+        reservAmmo = maxAmmo;
+        currentAmmo = clipSize;
         reloadTime = 1.5f;
-        points = 5;
+        points = 15;
     }
-
-    // public override void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
-    // {
-    //     if (Raylib.GetTime() - lastShotTime >= FireRate)
-    //     {
-    //         bulletController.ShootBullet(direction, Damage, points);
-    //         lastShotTime = (float)Raylib.GetTime();
-    //         currentAmmo--;
-    //     }
-    // }
 }

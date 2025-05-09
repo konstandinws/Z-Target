@@ -18,7 +18,6 @@ public class PlayerController {
         this.player = player;
         this.zombieController = zombieController;
         player.mainWeapon = new M1911();
-        player.secondaryWeapon = new AK47();
     }
 
     public void HandleInput(Camera2D camera)
@@ -75,13 +74,9 @@ public class PlayerController {
             player.mainWeapon.reloadTimer += Raylib.GetFrameTime();
             if (player.mainWeapon.reloadTimer >= player.mainWeapon.reloadTime)
             {
-                player.mainWeapon.currentAmmo = player.mainWeapon.clipSize;
                 player.isReloading = false;
                 player.FinishReload();
             }
-        }
-        if(player.mainWeapon.reservAmmo == 0 && player.mainWeapon.currentAmmo == 0){
-            HUDView.Instance.NoAmmo();
         }
     }
 

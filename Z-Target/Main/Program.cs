@@ -16,7 +16,7 @@ class Program
             float deltaTime = Raylib.GetFrameTime();
             
             
-            gameController.update(deltaTime);
+            gameController.Update(deltaTime);
             gameController.Draw();
 
         }
