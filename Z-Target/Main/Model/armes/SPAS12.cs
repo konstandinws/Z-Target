@@ -6,35 +6,35 @@ public class SPAS12 : Weapon
 
     public SPAS12()
     {
-        name = "SPAS-12";   
+        Name = "SPAS-12";   
         Type = WeaponType.Shotgun;
         Damage = 20;
         FireRate = 0.8f;
         BulletSpeed = 700f;
-        clipSize = 8;
-        maxAmmo = 48;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 2.5f;
-        points = 20;
-        spreadAngle = 10f;
+        ClipSize = 8;
+        MaxAmmo = 48;
+        ReservAmmo = MaxAmmo;
+        CurrentAmmo = ClipSize;
+        ReloadTime = 2.5f;
+        Points = 20;
+        SpreadAngle = 10f;
     }
     public override void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
     {
-        if (Raylib.GetTime() - lastShotTime >= FireRate && currentAmmo > 0)
+        if (Raylib.GetTime() - LastShotTime >= FireRate && CurrentAmmo > 0)
         {
             Random rand = new Random();
             for (int i = 0; i < pelletsPerShot; i++)
             {
                 // Générer une petite variation d'angle pour chaque plomb
-                    float spread = ((float)rand.NextDouble() - 0.5f) * spreadAngle; // entre -spreadAngle/2 et +spreadAngle/2
+                    float spread = ((float)rand.NextDouble() - 0.5f) * SpreadAngle; // entre -spreadAngle/2 et +spreadAngle/2
                     Vector2 spreadDirection = BulletSpread(direction, spread);
 
-                bulletController.ShootBullet(spreadDirection, Damage, points);
+                bulletController.ShootBullet(spreadDirection, Damage, Points);
             }
 
-            lastShotTime = (float)Raylib.GetTime();
-            currentAmmo--;
+            LastShotTime = (float)Raylib.GetTime();
+            CurrentAmmo--;
         }
     }
 }

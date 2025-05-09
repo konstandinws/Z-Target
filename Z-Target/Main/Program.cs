@@ -9,15 +9,15 @@ class Program
         Raylib.InitWindow(GameConfig.ScreenWidth, GameConfig.ScreenHeight, "test");
         Raylib.SetTargetFPS(GameConfig.TargetFPS);
 
-        GameController gameController = new GameController();
+        GameController GameController = new GameController();
 
         while (!Raylib.WindowShouldClose())
         {
             float deltaTime = Raylib.GetFrameTime();
             
             
-            gameController.Update(deltaTime);
-            gameController.Draw();
+            GameController.Update(deltaTime);
+            GameController.Draw();
 
         }
 

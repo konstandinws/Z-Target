@@ -11,18 +11,18 @@ public enum BonusType
 
 public class Bonus
 {
-    public Vector2 Position { get; private set; }
-    public BonusType Type { get; private set; }
+    public Vector2 Position ;
+    public BonusType Type ;
 
     private const float Lifetime = 10f;       // Bonus reste au sol 10 secondes
     private const float EffectDuration = 10f; // Durée de l'effet (pour InstaKill / DoublePoints)
 
-    public float TimeRemaining { get; private set; }    // Temps avant disparition au sol
-    public float BonusDuration { get; private set; }    // Temps restant de l'effet actif
+    public float TimeRemaining ;    // Temps avant disparition au sol
+    public float BonusDuration ;    // Temps restant de l'effet actif
 
-    public bool IsCollected { get; private set; }
-    public bool IsTimedBonus { get; private set; }      // Est-ce un bonus à effet temporaire ? (InstaKill / DoublePoints)
-    public bool IsEffectActive { get; private set; }    // Est-ce que l'effet est en cours ? (après ramassage)
+    public bool IsCollected ;
+    public bool IsTimedBonus ;      // Est-ce un bonus à effet temporaire ? (InstaKill / DoublePoints)
+    public bool IsEffectActive ;    // Est-ce que l'effet est en cours ? (après ramassage)
 
     public Bonus(Vector2 position, BonusType type)
     {
@@ -32,7 +32,7 @@ public class Bonus
         IsCollected = false;
         IsEffectActive = false;
 
-        IsTimedBonus = (type == BonusType.InstaKill || type == BonusType.DoublePoints);
+        IsTimedBonus = (Type == BonusType.InstaKill || Type == BonusType.DoublePoints);
         BonusDuration = 0f;  // Commence à 0, sera activé lors du ramassage
     }
 

@@ -6,17 +6,17 @@ using System.Collections.Generic;
 public class HUDView : IView
 {
     public static HUDView Instance { get; private set; }
-    private Player player;
-    private Random random = new Random();
+    private Player Player;
+    private Random Random = new Random();
 
-    private const float bonusIconSize = 30f;
+    private const float BonusIconSize = 30f;
 
     // Structure simple pour texte flottant
     private List<(string text, Vector2 position, Vector2 velocity, double spawnTime)> floatingTexts = new();
 
     public HUDView(Player player)
     {
-        this.player = player;
+        this.Player = player;
         if (Instance != null)
             throw new Exception("Une seule instance de HUDView est autorisée.");
         Instance = this;
@@ -30,25 +30,25 @@ public class HUDView : IView
         DrawDamageEffect();
 
         // Affichage des points
-        Raylib.DrawText($"{player.Score}", GameConfig.ScreenWidth - 100, GameConfig.ScreenHeight - 100, 24, Color.Black);
+        Raylib.DrawText($"{Player.Score}", GameConfig.ScreenWidth - 100, GameConfig.ScreenHeight - 100, 24, Color.Black);
 
         // Affichage des balles
-        Weapon weapon = player.mainWeapon;
-        int textWidth = Raylib.MeasureText($"{player.mainWeapon.name}", 24);
-        Raylib.DrawText($"{player.mainWeapon.name}", GameConfig.ScreenWidth - textWidth - 150, GameConfig.ScreenHeight - 50, 24, Color.Black);
-        if(!player.isReloading){
-            Raylib.DrawText($"{weapon.currentAmmo}/{weapon.reservAmmo}", GameConfig.ScreenWidth - 130, GameConfig.ScreenHeight - 50, 24, Color.Black);
+        Weapon weapon = Player.MainWeapon;
+        int textWidth = Raylib.MeasureText($"{Player.MainWeapon.Name}", 24);
+        Raylib.DrawText($"{Player.MainWeapon.Name}", GameConfig.ScreenWidth - textWidth - 150, GameConfig.ScreenHeight - 50, 24, Color.Black);
+        if(!Player.IsReloading){
+            Raylib.DrawText($"{weapon.CurrentAmmo}/{weapon.ReservAmmo}", GameConfig.ScreenWidth - 130, GameConfig.ScreenHeight - 50, 24, Color.Black);
         }
         
-        if (player.isReloading)
+        if (Player.IsReloading)
         {
             DrawReloading();
         }
 
-        if(player.mainWeapon.currentAmmo == 0 && player.mainWeapon.reservAmmo > 0){
+        if(Player.MainWeapon.CurrentAmmo == 0 && Player.MainWeapon.ReservAmmo > 0){
             Raylib.DrawText("Reload", GameConfig.ScreenWidth/2 - 50, GameConfig.ScreenHeight/2 + 70, 24, Color.Red);
         }
-        if(player.mainWeapon.reservAmmo == 0 && player.mainWeapon.currentAmmo == 0){
+        if(Player.MainWeapon.ReservAmmo == 0 && Player.MainWeapon.CurrentAmmo == 0){
             NoAmmo();
         }
         
@@ -62,7 +62,7 @@ public class HUDView : IView
         DrawRound();
         
         // Afficher l'écran de game over si le joueur est mort
-        if (!player.IsAlive())
+        if (!Player.IsAlive())
         {
             DrawGameOver();
         }
@@ -71,7 +71,7 @@ public class HUDView : IView
     public void DrawRound()
     {
         Raylib.DrawText($"Round {RoundController.Instance.CurrentRound + 1}", GameConfig.ScreenWidth - 150, 10, 24, Color.Black);
-        Raylib.DrawText($"Zombies left: {RoundController.Instance.zombiesToSpawn - RoundController.Instance.zombiesKilled}", GameConfig.ScreenWidth - 250, 40, 24, Color.Black);
+        Raylib.DrawText($"Zombies left: {RoundController.Instance.zombiesToSpawn - RoundController.Instance.zombiesKilled}", GameConfig.ScreenWidth - 225, 40, 24, Color.Black);
 
         // Afficher le compte à rebours si on est en transition
         if (RoundController.Instance.isRoundTransitioning)
@@ -85,7 +85,7 @@ public class HUDView : IView
     public void DrawReloading()
     {
         Raylib.DrawCircleSector(
-            new Vector2(GameConfig.ScreenWidth - 80, GameConfig.ScreenHeight - 45),20,0,360 * (player.mainWeapon.reloadTimer / player.mainWeapon.reloadTime),60,Color.DarkGray
+            new Vector2(GameConfig.ScreenWidth - 80, GameConfig.ScreenHeight - 45),20,0,360 * (Player.MainWeapon.ReloadTimer / Player.MainWeapon.ReloadTime),60,Color.DarkGray
         );
     }
 
@@ -101,7 +101,7 @@ public class HUDView : IView
         Raylib.DrawRectangle(barX, barY, barWidth, barHeight, Color.Gray);
         
         // Calculer la largeur de la barre d'endurance actuelle
-        float sprintRatio = player.GetSprintRatio();
+        float sprintRatio = Player.GetSprintRatio();
         int currentBarWidth = (int)(barWidth * sprintRatio);
         
         // Choisir une couleur en fonction de l'état de l'endurance
@@ -120,7 +120,7 @@ public class HUDView : IView
         Raylib.DrawRectangleLines(barX, barY, barWidth, barHeight, Color.Black);
         
         // Afficher un texte si le sprint est actif
-        if (player.IsSprinting())
+        if (Player.IsSprinting())
         {
             Raylib.DrawText("SPRINT", barX + barWidth + 10, barY, 20, Color.SkyBlue);
         }
@@ -129,19 +129,19 @@ public class HUDView : IView
     private void DrawDamageEffect()
     {
         // Calculer l'intensité de l'effet rouge en fonction de la santé actuelle
-        float healthRatio = player.GetHealthRatio();
+        float healthRatio = Player.GetHealthRatio();
         
-        // Effet plus intense quand la santé est basse
+        // sante basse plus rouge
         int baseAlpha = (int)(200 * (1.0f - healthRatio)); // Base alpha between 0-200
         
         // Si le joueur est invincible (vient d'être touché), augmenter l'intensité
-        if (player.IsInvincible())
+        if (Player.IsInvincible())
         {
-            // Pulsation rouge intense lors de la prise de dégâts
+            // prise de degats plus rouge
             float pulseFactor = 0.8f + 0.2f * (float)Math.Sin(Raylib.GetTime() * 15.0);
             int pulseAlpha = (int)(255 * pulseFactor);
             
-            // Dessiner rectangle rouge semi-transparent sur tout l'écran
+            // Draw rectangle rouge pas opaque 
             Raylib.DrawRectangle(0, 0, GameConfig.ScreenWidth, GameConfig.ScreenHeight, 
                                new Color(255, 0, 0, Math.Min(pulseAlpha, 220)));
         }
@@ -156,7 +156,7 @@ public class HUDView : IView
     public void AddFloatingPoints(int points)
     {
         // Crée un angle aléatoire entre -60° et +60° (en radians)
-        float angle = (float)(random.NextDouble() * Math.PI / 3 - Math.PI / 6); // entre -60° et +60°
+        float angle = (float)(Random.NextDouble() * Math.PI / 3 - Math.PI / 6); // entre -60° et +60°
         float speed = -40f;
         Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
 
@@ -169,7 +169,7 @@ public class HUDView : IView
 
         for (int i = floatingTexts.Count - 1; i >= 0; i--)
         {
-            var (text, position, velocity, spawnTime) = floatingTexts[i];
+            (string text, Vector2 position, Vector2 velocity, double spawnTime) = floatingTexts[i];
 
             if (currentTime - spawnTime > 0.5)
             {
@@ -185,7 +185,7 @@ public class HUDView : IView
     }
     private void DrawActiveBonus()
     {
-        List<BonusType> activeBonuses = player.GetActiveBonuses();
+        List<BonusType> activeBonuses = Player.GetActiveBonuses();
         if (activeBonuses.Count > 0)
         {
             // Position de départ pour le premier bonus
@@ -201,13 +201,13 @@ public class HUDView : IView
                 int posY = startY - (i * spacing);
                 
                 // Dessiner le carré coloré
-                Raylib.DrawRectangle(10, posY, (int)bonusIconSize, (int)bonusIconSize, color);
+                Raylib.DrawRectangle(10, posY, (int)BonusIconSize, (int)BonusIconSize, color);
                 
                 // Récupérer le temps restant pour le bonus
-                float remainingTime = player.GetBonusRemainingTime(bonusType);
+                float remainingTime = Player.GetBonusRemainingTime(bonusType);
                 
                 // Afficher le nom du bonus et le temps restant
-                Raylib.DrawText($"{bonusType} ({remainingTime:F1}s)", 10 + (int)bonusIconSize + 10, posY, 20, Color.Black);
+                Raylib.DrawText($"{bonusType} ({remainingTime:F1}s)", 10 + (int)BonusIconSize + 10, posY, 20, Color.Black);
             }
         }
     }

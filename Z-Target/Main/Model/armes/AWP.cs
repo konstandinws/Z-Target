@@ -7,16 +7,16 @@ public class AWP : Weapon
 
     public AWP()
     {
-        name = "AWP";
+        Name = "AWP";
         Type = WeaponType.Rifle;
         Damage = 100;
         FireRate = 1.5f;
         BulletSpeed = 1200f;
-        clipSize = 5;
-        maxAmmo = 15;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 2.2f;
-        points = 12;
+        ClipSize = 5;
+        MaxAmmo = 15;
+        ReservAmmo = MaxAmmo;
+        CurrentAmmo = ClipSize;
+        ReloadTime = 2.2f;
+        Points = 12;
     }
 }

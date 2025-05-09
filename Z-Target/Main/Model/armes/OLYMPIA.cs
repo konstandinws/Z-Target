@@ -6,35 +6,35 @@ public class OLYMPIA : Weapon
 
     public OLYMPIA()
     {
-        name = "OLYMPIA";   
+        Name = "OLYMPIA";   
         Type = WeaponType.Shotgun;
         Damage = 30;
         FireRate = 1f;
         BulletSpeed = 700f;
-        clipSize = 2;
-        maxAmmo = 12;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 2.5f;
-        points = 20;
-        spreadAngle = 6f;
+        ClipSize = 2;
+        MaxAmmo = 12;
+        ReservAmmo = MaxAmmo;
+        CurrentAmmo = ClipSize;
+        ReloadTime = 2.5f;
+        Points = 20;
+        SpreadAngle = 6f;
     }
     public override void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
     {
-        if (Raylib.GetTime() - lastShotTime >= FireRate && currentAmmo > 0)
+        if (Raylib.GetTime() - LastShotTime >= FireRate && CurrentAmmo > 0)
         {
             Random rand = new Random();
             for (int i = 0; i < pelletsPerShot; i++)
             {
                 // Générer une petite variation d'angle pour chaque plomb
-                    float spread = ((float)rand.NextDouble() - 0.5f) * spreadAngle; // entre -spreadAngle/2 et +spreadAngle/2
+                    float spread = ((float)rand.NextDouble() - 0.5f) * SpreadAngle; // entre -spreadAngle/2 et +spreadAngle/2
                     Vector2 spreadDirection = BulletSpread(direction, spread);
 
-                bulletController.ShootBullet(spreadDirection, Damage, points);
+                bulletController.ShootBullet(spreadDirection, Damage, Points);
             }
 
-            lastShotTime = (float)Raylib.GetTime();
-            currentAmmo--;
+            LastShotTime = (float)Raylib.GetTime();
+            CurrentAmmo--;
         }
     }
 }

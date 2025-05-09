@@ -4,17 +4,17 @@ public class GLOCK : Weapon
 {
     public GLOCK()
     {
-        name = "GLOCK";
+        Name = "GLOCK";
         Type = WeaponType.Handgun;
         Damage = 12;
         FireRate = 0.3f;
         BulletSpeed = 800f;
-        clipSize = 15;
-        maxAmmo = 60;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 1.5f;
-        points = 15;
-        spreadAngle = 1.1f;
+        ClipSize = 15;
+        MaxAmmo = 60;
+        ReservAmmo = MaxAmmo;
+        CurrentAmmo = ClipSize;
+        ReloadTime = 1.5f;
+        Points = 15;
+        SpreadAngle = 1.1f;
     }
 }

@@ -60,11 +60,6 @@ public class GameController
 
         Camera.Target = Player.Position;
     }
-
-    private void RestartGame()
-    {
-        InitGame();
-    }
     
     public void Draw()
     {

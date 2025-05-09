@@ -4,120 +4,120 @@ using System.Collections.Generic;
 
 public class PlayerView : IView{
 
-    private Player player;
-    private Texture2D idleSprite;
-    private List<Texture2D> walkSprites;
-    private List<Texture2D> runSprites;
+    private Player Player;
+    private Texture2D IdleSprite;
+    private List<Texture2D> WalkSprites;
+    private List<Texture2D> RunSprites;
     
     // Sprites d'armes
-    private Texture2D rifleIdleSprite;
-    private List<Texture2D> rifleShootSprites;
-    private List<Texture2D> rifleReloadSprites;
+    private Texture2D RifleIdleSprite;
+    private List<Texture2D> RifleShootSprites;
+    private List<Texture2D> RifleReloadSprites;
     
-    private Texture2D handgunIdleSprite;
-    private List<Texture2D> handgunShootSprites;
-    private List<Texture2D> handgunReloadSprites;
+    private Texture2D HandgunIdleSprite;
+    private List<Texture2D> HandgunShootSprites;
+    private List<Texture2D> HandgunReloadSprites;
     
-    private Texture2D shotgunIdleSprite;
-    private List<Texture2D> shotgunShootSprites;
-    private List<Texture2D> shotgunReloadSprites;
+    private Texture2D ShotgunIdleSprite;
+    private List<Texture2D> ShotgunShootSprites;
+    private List<Texture2D> ShotgunReloadSprites;
     
-    private float animationTimer = 0f;
-    private float weaponAnimationTimer = 0f;
+    private float AnimationTimer = 0f;
+    private float WeaponAnimationTimer = 0f;
     private const float ANIMATION_SPEED = 0.05f;
     private const float WEAPON_ANIMATION_SPEED = 0.05f;
     private const float WEAPON_RELOAD_ANIMATION_SPEED = 0.1f; // Plus lent pour le rechargement
-    private int currentFrame = 0;
-    private int currentWeaponFrame = 0;
+    private int CurrentFrame = 0;
+    private int CurrentWeaponFrame = 0;
     private const int ANIMATION_FRAMES = 20;
     private const int WEAPON_SHOOT_FRAMES = 3;  // 3 frames pour l'animation de tir
     private const int WEAPON_RELOAD_FRAMES = 20; // 20 frames pour l'animation de rechargement
 
     // Nouveaux sprites pour l'attaque au couteau
-    private List<Texture2D> knifeAttackSprites;
+    private List<Texture2D> KnifeAttackSprites;
     private const int KNIFE_ANIMATION_FRAMES = 8;
     private const float KNIFE_ANIMATION_SPEED = 0.05f;
-    private float knifeAnimationTimer = 0f;
-    private int currentKnifeFrame = 0;
+    private float KnifeAnimationTimer = 0f;
+    private int CurrentKnifeFrame = 0;
 
     public PlayerView(Player player){
-        this.player = player;
+        this.Player = player;
         // Charger le sprite idle
-        idleSprite = Raylib.LoadTexture("Main/sprites/feet/idle/survivor-idle_0.png");
+        IdleSprite = Raylib.LoadTexture("Main/sprites/feet/idle/survivor-idle_0.png");
         
         // Charger les sprites de marche
-        walkSprites = new List<Texture2D>();
+        WalkSprites = new List<Texture2D>();
         for (int i = 0; i < ANIMATION_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/feet/walk/survivor-walk_{i}.png";
-            walkSprites.Add(Raylib.LoadTexture(spritePath));
+            WalkSprites.Add(Raylib.LoadTexture(spritePath));
         }
 
         // Charger les sprites de course
-        runSprites = new List<Texture2D>();
+        RunSprites = new List<Texture2D>();
         for (int i = 0; i < ANIMATION_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/feet/run/survivor-run_{i}.png";
-            runSprites.Add(Raylib.LoadTexture(spritePath));
+            RunSprites.Add(Raylib.LoadTexture(spritePath));
         }
 
         // Charger les sprites d'armes
         LoadWeaponSprites();
 
         // Charger les sprites d'attaque au couteau
-        knifeAttackSprites = new List<Texture2D>();
+        KnifeAttackSprites = new List<Texture2D>();
         for (int i = 0; i < KNIFE_ANIMATION_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/knife/survivor-meleeattack_knife_{i}.png";
-            knifeAttackSprites.Add(Raylib.LoadTexture(spritePath));
+            KnifeAttackSprites.Add(Raylib.LoadTexture(spritePath));
         }
     }
 
     private void LoadWeaponSprites()
     {
         // Charger les sprites du fusil d'assaut
-        rifleIdleSprite = Raylib.LoadTexture("Main/sprites/rifle/idle/survivor-idle_rifle_0.png");
-        rifleShootSprites = new List<Texture2D>();
+        RifleIdleSprite = Raylib.LoadTexture("Main/sprites/rifle/idle/survivor-idle_rifle_0.png");
+        RifleShootSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_SHOOT_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/rifle/shoot/survivor-shoot_rifle_{i}.png";
-            rifleShootSprites.Add(Raylib.LoadTexture(spritePath));
+            RifleShootSprites.Add(Raylib.LoadTexture(spritePath));
         }
-        rifleReloadSprites = new List<Texture2D>();
+        RifleReloadSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_RELOAD_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/rifle/reload/survivor-reload_rifle_{i}.png";
-            rifleReloadSprites.Add(Raylib.LoadTexture(spritePath));
+            RifleReloadSprites.Add(Raylib.LoadTexture(spritePath));
         }
 
         // Charger les sprites du pistolet
-        handgunIdleSprite = Raylib.LoadTexture("Main/sprites/handgun/idle/survivor-idle_handgun_0.png");
-        handgunShootSprites = new List<Texture2D>();
+        HandgunIdleSprite = Raylib.LoadTexture("Main/sprites/handgun/idle/survivor-idle_handgun_0.png");
+        HandgunShootSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_SHOOT_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/handgun/shoot/survivor-shoot_handgun_{i}.png";
-            handgunShootSprites.Add(Raylib.LoadTexture(spritePath));
+            HandgunShootSprites.Add(Raylib.LoadTexture(spritePath));
         }
-        handgunReloadSprites = new List<Texture2D>();
+        HandgunReloadSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_RELOAD_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/handgun/reload/survivor-reload_handgun_{i}.png";
-            handgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
+            HandgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
         }
 
         // Charger les sprites du shotgun
-        shotgunIdleSprite = Raylib.LoadTexture("Main/sprites/shotgun/idle/survivor-idle_shotgun_0.png");
-        shotgunShootSprites = new List<Texture2D>();
+        ShotgunIdleSprite = Raylib.LoadTexture("Main/sprites/shotgun/idle/survivor-idle_shotgun_0.png");
+        ShotgunShootSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_SHOOT_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/shotgun/shoot/survivor-shoot_shotgun_{i}.png";
-            shotgunShootSprites.Add(Raylib.LoadTexture(spritePath));
+            ShotgunShootSprites.Add(Raylib.LoadTexture(spritePath));
         }
-        shotgunReloadSprites = new List<Texture2D>();
+        ShotgunReloadSprites = new List<Texture2D>();
         for (int i = 0; i < WEAPON_RELOAD_FRAMES; i++)
         {
             string spritePath = $"Main/sprites/shotgun/reload/survivor-reload_shotgun_{i}.png";
-            shotgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
+            ShotgunReloadSprites.Add(Raylib.LoadTexture(spritePath));
         }
     }
 
@@ -130,65 +130,65 @@ public class PlayerView : IView{
 
     private void UpdateAnimation()
     {
-        if (player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
+        if (Player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
         {
-            knifeAnimationTimer += Raylib.GetFrameTime();
-            if (knifeAnimationTimer >= KNIFE_ANIMATION_SPEED)
+            KnifeAnimationTimer += Raylib.GetFrameTime();
+            if (KnifeAnimationTimer >= KNIFE_ANIMATION_SPEED)
             {
-                knifeAnimationTimer = 0f;
-                currentKnifeFrame = (currentKnifeFrame + 1) % KNIFE_ANIMATION_FRAMES;
-                if (currentKnifeFrame == KNIFE_ANIMATION_FRAMES - 1)
+                KnifeAnimationTimer = 0f;
+                CurrentKnifeFrame = (CurrentKnifeFrame + 1) % KNIFE_ANIMATION_FRAMES;
+                if (CurrentKnifeFrame == KNIFE_ANIMATION_FRAMES - 1)
                 {
-                    player.StopKnifeAttack();
+                    Player.StopKnifeAttack();
                 }
             }
         }
-        else if (player.CurrentAnimationState != Player.AnimationState.Idle)
+        else if (Player.CurrentAnimationState != Player.AnimationState.Idle)
         {
-            animationTimer += Raylib.GetFrameTime();
-            if (animationTimer >= ANIMATION_SPEED)
+            AnimationTimer += Raylib.GetFrameTime();
+            if (AnimationTimer >= ANIMATION_SPEED)
             {
-                animationTimer = 0f;
-                currentFrame = (currentFrame + 1) % ANIMATION_FRAMES;
+                AnimationTimer = 0f;
+                CurrentFrame = (CurrentFrame + 1) % ANIMATION_FRAMES;
             }
         }
         else
         {
             // Réinitialiser l'animation quand on revient à l'état idle
-            currentFrame = 0;
-            animationTimer = 0f;
-            currentKnifeFrame = 0;
-            knifeAnimationTimer = 0f;
+            CurrentFrame = 0;
+            AnimationTimer = 0f;
+            CurrentKnifeFrame = 0;
+            KnifeAnimationTimer = 0f;
         }
     }
 
     private void UpdateWeaponAnimation()
     {
-        if (player.CurrentWeaponState != Player.WeaponAnimationState.Idle)
+        if (Player.CurrentWeaponState != Player.WeaponAnimationState.Idle)
         {
-            weaponAnimationTimer += Raylib.GetFrameTime();
-            float currentAnimationSpeed = player.CurrentWeaponState == Player.WeaponAnimationState.Reloading 
+            WeaponAnimationTimer += Raylib.GetFrameTime();
+            float currentAnimationSpeed = Player.CurrentWeaponState == Player.WeaponAnimationState.Reloading 
                 ? WEAPON_RELOAD_ANIMATION_SPEED 
                 : WEAPON_ANIMATION_SPEED;
 
-            if (weaponAnimationTimer >= currentAnimationSpeed)
+            if (WeaponAnimationTimer >= currentAnimationSpeed)
             {
-                weaponAnimationTimer = 0f;
+                WeaponAnimationTimer = 0f;
                 
-                switch (player.CurrentWeaponState)
+                switch (Player.CurrentWeaponState)
                 {
                     case Player.WeaponAnimationState.Shooting:
-                        currentWeaponFrame = (currentWeaponFrame + 1) % WEAPON_SHOOT_FRAMES;
-                        if (currentWeaponFrame == 0)
+                        CurrentWeaponFrame = (CurrentWeaponFrame + 1) % WEAPON_SHOOT_FRAMES;
+                        if (CurrentWeaponFrame == 0)
                         {
-                            player.StopShooting();
+                            Player.StopShooting();
                         }
                         break;
                     case Player.WeaponAnimationState.Reloading:
-                        currentWeaponFrame = (currentWeaponFrame + 1) % WEAPON_RELOAD_FRAMES;
-                        if (currentWeaponFrame == 0)
+                        CurrentWeaponFrame = (CurrentWeaponFrame + 1) % WEAPON_RELOAD_FRAMES;
+                        if (CurrentWeaponFrame == 0)
                         {
-                            player.FinishReload();
+                            Player.FinishReload();
                         }
                         break;
                 }
@@ -196,8 +196,8 @@ public class PlayerView : IView{
         }
         else
         {
-            currentWeaponFrame = 0;
-            weaponAnimationTimer = 0f;
+            CurrentWeaponFrame = 0;
+            WeaponAnimationTimer = 0f;
         }
     }
 
@@ -206,13 +206,13 @@ public class PlayerView : IView{
         Texture2D currentSprite = GetCurrentSprite();
         if (currentSprite.Width == 0 || currentSprite.Height == 0) return;
 
-        Vector2 playerSize = new Vector2(player.Size.X, player.Size.Y);
-        float angle = player.AngleToMouse;
+        Vector2 playerSize = new Vector2(Player.Size.X, Player.Size.Y);
+        float angle = Player.AngleToMouse;
 
         Raylib.DrawTexturePro(
             currentSprite,
             new Rectangle(0, 0, currentSprite.Width, currentSprite.Height),
-            new Rectangle(player.Position.X, player.Position.Y, playerSize.X, playerSize.Y),
+            new Rectangle(Player.Position.X, Player.Position.Y, playerSize.X, playerSize.Y),
             playerSize / 2f,
             angle,
             Color.White
@@ -221,16 +221,16 @@ public class PlayerView : IView{
 
     private Texture2D GetCurrentSprite()
     {
-        switch (player.CurrentAnimationState)
+        switch (Player.CurrentAnimationState)
         {
             case Player.AnimationState.KnifeAttack:
-                return knifeAttackSprites[currentKnifeFrame];
+                return KnifeAttackSprites[CurrentKnifeFrame];
             case Player.AnimationState.Walking:
-                return walkSprites[currentFrame];
+                return WalkSprites[CurrentFrame];
             case Player.AnimationState.Running:
-                return runSprites[currentFrame];
+                return RunSprites[CurrentFrame];
             default:
-                return idleSprite;
+                return IdleSprite;
         }
     }
 
@@ -241,12 +241,12 @@ public class PlayerView : IView{
         List<Texture2D> reloadSprites;
 
         // Si on est en train d'attaquer au couteau, utiliser l'animation du couteau
-        if (player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
+        if (Player.CurrentAnimationState == Player.AnimationState.KnifeAttack)
         {
-            currentWeaponSprite = knifeAttackSprites[currentKnifeFrame];
+            currentWeaponSprite = KnifeAttackSprites[CurrentKnifeFrame];
             // Quadrupler la taille pour l'animation du couteau
-            Vector2 knifeSize = new Vector2(player.Size.X * 2.5f, player.Size.Y * 2.5f);
-            Vector2 knifePosition = player.Position;
+            Vector2 knifeSize = new Vector2(Player.Size.X * 2.5f, Player.Size.Y * 2.5f);
+            Vector2 knifePosition = Player.Position;
             Rectangle knifeRect = new Rectangle(
                 knifePosition.X,
                 knifePosition.Y,
@@ -259,47 +259,47 @@ public class PlayerView : IView{
                 new Rectangle(0, 0, currentWeaponSprite.Width, currentWeaponSprite.Height),
                 knifeRect,
                 knifeOrigin,
-                player.AngleToMouse,
+                Player.AngleToMouse,
                 Color.White
             );
             return;
         }
 
         // Sinon, utiliser l'arme normale
-        switch (player.mainWeapon.Type)
+        switch (Player.MainWeapon.Type)
         {
             case WeaponType.Rifle:
-                currentWeaponSprite = rifleIdleSprite;
-                shootSprites = rifleShootSprites;
-                reloadSprites = rifleReloadSprites;
+                currentWeaponSprite = RifleIdleSprite;
+                shootSprites = RifleShootSprites;
+                reloadSprites = RifleReloadSprites;
                 break;
             case WeaponType.Shotgun:
-                currentWeaponSprite = shotgunIdleSprite;
-                shootSprites = shotgunShootSprites;
-                reloadSprites = shotgunReloadSprites;
+                currentWeaponSprite = ShotgunIdleSprite;
+                shootSprites = ShotgunShootSprites;
+                reloadSprites = ShotgunReloadSprites;
                 break;
             default: // Handgun
-                currentWeaponSprite = handgunIdleSprite;
-                shootSprites = handgunShootSprites;
-                reloadSprites = handgunReloadSprites;
+                currentWeaponSprite = HandgunIdleSprite;
+                shootSprites = HandgunShootSprites;
+                reloadSprites = HandgunReloadSprites;
                 break;
         }
         
-        switch (player.CurrentWeaponState)
+        switch (Player.CurrentWeaponState)
         {
             case Player.WeaponAnimationState.Shooting:
-                currentWeaponSprite = shootSprites[currentWeaponFrame];
+                currentWeaponSprite = shootSprites[CurrentWeaponFrame];
                 break;
             case Player.WeaponAnimationState.Reloading:
-                currentWeaponSprite = reloadSprites[currentWeaponFrame];
+                currentWeaponSprite = reloadSprites[CurrentWeaponFrame];
                 break;
         }
 
         // Position de l'arme au centre du joueur
-        Vector2 weaponPosition = player.Position;
+        Vector2 weaponPosition = Player.Position;
 
         // Doubler la taille de l'arme
-        Vector2 weaponSize = new Vector2(player.Size.X * 2f, player.Size.Y * 2f);
+        Vector2 weaponSize = new Vector2(Player.Size.X * 2f, Player.Size.Y * 2f);
 
         Rectangle destRect = new Rectangle(
             weaponPosition.X,
@@ -315,31 +315,31 @@ public class PlayerView : IView{
             new Rectangle(0, 0, currentWeaponSprite.Width, currentWeaponSprite.Height),
             destRect,
             origin,
-            player.AngleToMouse,
+            Player.AngleToMouse,
             Color.White
         );
     }
 
     public Player GetPlayer()
     {
-        return player;
+        return Player;
     }
 
     public void Pivoter(){
         
-        Rectangle rect = new Rectangle(player.Position.X, player.Position.Y, player.Size.X, player.Size.Y);
+        Rectangle rect = new Rectangle(Player.Position.X, Player.Position.Y, Player.Size.X, Player.Size.Y);
         // origine du point de pivot au centre du rectangle 
-        Vector2 origin = player.Size / 2f;
+        Vector2 origin = Player.Size / 2f;
 
         // Choisir la couleur du joueur en fonction de son état
-        Color playerColor = player.Color;
+        Color playerColor = Player.Color;
         
         // Si le joueur est invincible, le faire clignoter
-        if (player.IsInvincible() && (Raylib.GetTime() % 0.4) < 0.2)
+        if (Player.IsInvincible() && (Raylib.GetTime() % 0.4) < 0.2)
         {
             playerColor = Color.White; // Flash blanc pendant l'invincibilité
         }
 
-        Raylib.DrawRectanglePro(rect, origin, player.AngleToMouse, playerColor);
+        Raylib.DrawRectanglePro(rect, origin, Player.AngleToMouse, playerColor);
     }
 }

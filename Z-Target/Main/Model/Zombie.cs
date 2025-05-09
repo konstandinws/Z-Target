@@ -8,8 +8,8 @@ public class Zombie
     public Vector2 Position;
     public float Speed = 150;
     public bool IsAlive;
-    public int radius = 27; 
-    public float dropBonusChance = 0.05f;
+    public int Radius = 27; 
+    public float DropBonusChance = 0.05f;
 
     public Zombie(Vector2 position, float health, float speed){
         MaxHealth = health;
@@ -41,7 +41,7 @@ public class Zombie
 
         // Probabilité de drop d'un bonus (20 % par exemple)
        
-        if (GetRandomFloat() < dropBonusChance)
+        if (GetRandomFloat() < DropBonusChance)
         {
             // Random bonus (par exemple MaxAmmo ou InstaKill)
             BonusType bonusType = GetRandomBonusType();

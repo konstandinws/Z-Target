@@ -4,13 +4,13 @@ using System;
 
 public class Boite{
     public Vector2 Position = new Vector2(0, 0);
-    public int width = 300;
-    public int height = 50;
+    public int Width = 300;
+    public int Height = 50;
     public bool IsOpen = false;
     public float WeaponTimeToDisappear = 10f;
     public int BoxPrice = 950;
     Random random = new Random();
-    List<string> availableWeapons = new List<string>() {"AK47", "M4", "M1911", "FAMAS", "GALIL", "MP5",
+    List<string> AvailableWeapons = new List<string>() {"AK47", "M4", "M1911", "FAMAS", "GALIL", "MP5",
      "GLOCK", "SPAS12", "OLYMPIA", "UMP45", "RPK", "AWP", "PYTHON", "MP40", "RAYGUN"};
 
     public Weapon Weapon = null;
@@ -36,8 +36,8 @@ public class Boite{
         IsOpen = true;
 
         // Tire une arme au hasard
-        int index = random.Next(availableWeapons.Count);
-        string weaponName = availableWeapons[index];
+        int index = random.Next(AvailableWeapons.Count);
+        string weaponName = AvailableWeapons[index];
 
         switch (weaponName)
         {
@@ -91,12 +91,12 @@ public class Boite{
 
     public void AcceptWeapon(Player player)
     {
-        if(player.secondaryWeapon == null){
-            player.secondaryWeapon = player.mainWeapon;
-            player.mainWeapon = Weapon;
+        if(player.SecondaryWeapon == null){
+            player.SecondaryWeapon = player.MainWeapon;
+            player.MainWeapon = Weapon;
         }
         else{
-            player.mainWeapon = Weapon;
+            player.MainWeapon = Weapon;
         }
     }
 

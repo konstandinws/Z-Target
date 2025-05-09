@@ -29,48 +29,48 @@ public class Player
     public Color Color { get; set; } = Color.Blue;
     public Vector2 Direction = Vector2.Zero;
     public float AngleToMouse;
-    private Vector2 velocity = Vector2.Zero;
-    private Vector2 acceleration = Vector2.Zero;
+    private Vector2 Velocity = Vector2.Zero;
+    private Vector2 Acceleration = Vector2.Zero;
 
-    private float accelerationSpeed = 10000f;
-    private float maxSpeed = 300f;
-    private float sprintMultiplier = 1.6f;  // Multiplicateur de vitesse en sprint
+    private float AccelerationSpeed = 10000f;
+    private float MaxSpeed = 300f;
+    private float SprintMultiplier = 1.6f;  // Multiplicateur de vitesse en sprint
     private bool isSprinting = false;
-    private float friction = 0.85f; // augmenter fait effet patinoire
-    private float minVelocity = 0.01f; // vitesse minimale avant de s'arreter
+    private float Friction = 0.85f; // augmenter fait effet patinoire
+    private float MinVelocity = 0.01f; // vitesse minimale avant de s'arreter
     
     // Variables pour la gestion du sprint
-    private float maxSprintDuration = 3.0f;    // Durée maximale du sprint en secondes
-    private float currentSprintDuration = 3.0f; // Durée actuelle de sprint restante
-    private float sprintRecoveryRate = 0.5f;    // Vitesse de récupération du sprint (par seconde)
-    private float sprintDepletionRate = 1.0f;   // Vitesse d'épuisement du sprint (par seconde)
-    private bool canSprint = true;              // Indique si le joueur peut sprinter
+    private float MaxSprintDuration = 3.0f;    // Durée maximale du sprint en secondes
+    private float CurrentSprintDuration = 3.0f; // Durée actuelle de sprint restante
+    private float SprintRecoveryRate = 0.5f;    // Vitesse de récupération du sprint (par seconde)
+    private float SprintDepletionRate = 1.0f;   // Vitesse d'épuisement du sprint (par seconde)
+    private bool CanSprint = true;              // Indique si le joueur peut sprinter
 
-    public Weapon mainWeapon;
-    public Weapon secondaryWeapon;
+    public Weapon MainWeapon;
+    public Weapon SecondaryWeapon;
 
-    public bool isReloading = false;
+    public bool IsReloading = false;
 
     public int Score = 0;
 
     // Système de santé
-    private int maxHealth = 3;
-    private int currentHealth;
-    private float invincibilityTime = 1.0f; // Temps d'invincibilité après être touché (en secondes)
-    private float currentInvincibilityTime = 0f;
+    private int MaxHealth = 3;
+    private int CurrentHealth;
+    private float InvincibilityTime = 0.5f; // Temps d'invincibilité après être touché (en secondes)
+    private float CurrentInvincibilityTime = 0f;
     private bool isInvincible = false;
     
     // Régénération de santé
-    private float healthRegenerationDelay = 2.0f; // Délai avant de commencer à régénérer (en secondes)
-    private float currentRegenerationDelay = 0f;  // Compteur actuel pour le délai de régénération
-    private bool isRegenerating = false;         // Indique si le joueur est en train de régénérer sa santé
-    private float regenerationRate = 1.0f;       // Vitesse de régénération en points de vie par seconde
-    private float regenerationAccumulator = 0f;  // Accumulateur pour la régénération (pour les points de vie fractionnés)
+    private float HealthRegenerationDelay = 2.0f; // Délai avant de commencer à régénérer (en secondes)
+    private float CurrentRegenerationDelay = 0f;  // Compteur actuel pour le délai de régénération
+    private bool IsRegenerating = false;         // Indique si le joueur est en train de régénérer sa santé
+    private float RegenerationRate = 1.0f;       // Vitesse de régénération en points de vie par seconde
+    private float RegenerationAccumulator = 0f;  // Accumulateur pour la régénération (pour les points de vie fractionnés)
     
     // Remplacer le bonus unique par un Dictionary pour suivre plusieurs bonus actifs
-    private Dictionary<BonusType, float> activeBonuses = new Dictionary<BonusType, float>();
+    private Dictionary<BonusType, float> ActiveBonuses = new Dictionary<BonusType, float>();
     
-    private float knifeAttackTimer = 0f;
+    private float KnifeAttackTimer = 0f;
     private const float KNIFE_ATTACK_DURATION = 0.3f;
 
     
@@ -78,37 +78,37 @@ public class Player
 
     public Player()
     {
-        currentHealth = maxHealth;
+        CurrentHealth = MaxHealth;
         // Centrer le joueur sur la map
         Position = new Vector2(GameConfig.MAP_SIZE / 2, GameConfig.MAP_SIZE / 2);
     }
     
     public void Move(float deltaTime)
     {
-        acceleration = Vector2.Zero;
-        acceleration = Direction * accelerationSpeed;
+        Acceleration = Vector2.Zero;
+        Acceleration = Direction * AccelerationSpeed;
         
-        velocity += acceleration * deltaTime;
+        Velocity += Acceleration * deltaTime;
 
         // Mise à jour de l'état d'animation
-        UpdateAnimationState(velocity.LengthSquared() > minVelocity * minVelocity + 800.0f, isSprinting, CurrentWeaponState == WeaponAnimationState.Shooting, isReloading);
+        UpdateAnimationState(Velocity.LengthSquared() > MinVelocity * MinVelocity + 800.0f, isSprinting, CurrentWeaponState == WeaponAnimationState.Shooting, IsReloading);
 
         // Gestion du sprint
         UpdateSprintState(deltaTime);
         
         // Appliquer le multiplicateur de sprint à la vitesse max si nécessaire
-        float currentMaxSpeed = isSprinting ? maxSpeed * sprintMultiplier : maxSpeed;
+        float currentMaxSpeed = isSprinting ? MaxSpeed * SprintMultiplier : MaxSpeed;
 
-        if (velocity.LengthSquared() > currentMaxSpeed * currentMaxSpeed)
-            velocity = Vector2.Normalize(velocity) * currentMaxSpeed;
+        if (Velocity.LengthSquared() > currentMaxSpeed * currentMaxSpeed)
+            Velocity = Vector2.Normalize(Velocity) * currentMaxSpeed;
 
-        velocity *= friction;
+        Velocity *= Friction;
 
-        if (velocity.LengthSquared() < minVelocity * minVelocity)
-            velocity = Vector2.Zero;
+        if (Velocity.LengthSquared() < MinVelocity * MinVelocity)
+            Velocity = Vector2.Zero;
 
         // Mettre à jour la position
-        Position += velocity * deltaTime;
+        Position += Velocity * deltaTime;
 
         // Limiter la position du joueur à la zone de jeu de 2000x2000 pixels au centre de la map
         Position = new Vector2(
@@ -129,16 +129,16 @@ public class Player
     private void UpdateSprintState(float deltaTime)
     {
         // Si le joueur sprinte et a encore de l'endurance
-        if (isSprinting && canSprint)
+        if (isSprinting && CanSprint)
         {
             // Réduire l'endurance de sprint
-            currentSprintDuration -= sprintDepletionRate * deltaTime;
+            CurrentSprintDuration -= SprintDepletionRate * deltaTime;
             
             // Vérifier si l'endurance est épuisée
-            if (currentSprintDuration <= 0)
+            if (CurrentSprintDuration <= 0)
             {
-                currentSprintDuration = 0;
-                canSprint = false;
+                CurrentSprintDuration = 0;
+                CanSprint = false;
                 isSprinting = false;
             }
         }
@@ -146,13 +146,13 @@ public class Player
         else if (!isSprinting)
         {
             // Augmenter progressivement l'endurance de sprint
-            currentSprintDuration += sprintRecoveryRate * deltaTime;
+            CurrentSprintDuration += SprintRecoveryRate * deltaTime;
             
             // Limiter à la durée maximale
-            if (currentSprintDuration >= maxSprintDuration)
+            if (CurrentSprintDuration >= MaxSprintDuration)
             {
-                currentSprintDuration = maxSprintDuration;
-                canSprint = true;
+                CurrentSprintDuration = MaxSprintDuration;
+                CanSprint = true;
             }
         }
     }
@@ -162,7 +162,7 @@ public class Player
     {
         List<BonusType> expiredBonuses = new List<BonusType>();
         
-        foreach (var bonus in activeBonuses)
+        foreach (var bonus in ActiveBonuses)
         {
             BonusType bonusType = bonus.Key;
             float remaining = bonus.Value - deltaTime;
@@ -173,14 +173,14 @@ public class Player
             }
             else
             {
-                activeBonuses[bonusType] = remaining;
+                ActiveBonuses[bonusType] = remaining;
             }
         }
         
         // Supprimer les bonus expirés
         foreach (var expired in expiredBonuses)
         {
-            activeBonuses.Remove(expired);
+            ActiveBonuses.Remove(expired);
         }
     }
 
@@ -191,50 +191,50 @@ public class Player
 
     public bool HasActiveBonus(BonusType type)
     {
-        return activeBonuses.ContainsKey(type);
+        return ActiveBonuses.ContainsKey(type);
     }
     
     public List<BonusType> GetActiveBonuses()
     {
-        return new List<BonusType>(activeBonuses.Keys);
+        return new List<BonusType>(ActiveBonuses.Keys);
     }
     
     public float GetBonusRemainingTime(BonusType type)
     {
-        if (activeBonuses.ContainsKey(type))
+        if (ActiveBonuses.ContainsKey(type))
         {
-            return activeBonuses[type];
+            return ActiveBonuses[type];
         }
         return 0f;
     }
 
     public void EnableInstaKill(float duration)
     {
-        activeBonuses[BonusType.InstaKill] = duration;
+        ActiveBonuses[BonusType.InstaKill] = duration;
     }
 
     public void EnableDoublePoints(float duration)
     {
-        activeBonuses[BonusType.DoublePoints] = duration;
+        ActiveBonuses[BonusType.DoublePoints] = duration;
     }
 
     public void DisableBonus(BonusType type)
     {
-        if (activeBonuses.ContainsKey(type))
+        if (ActiveBonuses.ContainsKey(type))
         {
-            activeBonuses.Remove(type);
+            ActiveBonuses.Remove(type);
         }
     }
     
     public void DisableAllBonuses()
     {
-        activeBonuses.Clear();
+        ActiveBonuses.Clear();
     }
 
     public void SetSprinting(bool sprinting)
     {
         // Ne permettre le sprint que s'il reste de l'endurance et qu'il est autorisé
-        if (sprinting && currentSprintDuration > 0 && canSprint)
+        if (sprinting && CurrentSprintDuration > 0 && CanSprint)
         {
             isSprinting = true;
         }
@@ -252,15 +252,15 @@ public class Player
     public float GetSprintRatio()
     {
         // Retourne une valeur entre 0 et 1 représentant la quantité d'endurance restante
-        return currentSprintDuration / maxSprintDuration;
+        return CurrentSprintDuration / MaxSprintDuration;
     }
 
     private void UpdateInvincibility(float deltaTime)
     {
         if (isInvincible)
         {
-            currentInvincibilityTime -= deltaTime;
-            if (currentInvincibilityTime <= 0)
+            CurrentInvincibilityTime -= deltaTime;
+            if (CurrentInvincibilityTime <= 0)
             {
                 isInvincible = false;
             }
@@ -270,52 +270,52 @@ public class Player
     private void UpdateHealthRegeneration(float deltaTime)
     {
         // Si la santé est déjà au maximum, pas besoin de régénérer
-        if (currentHealth >= maxHealth)
+        if (CurrentHealth >= MaxHealth)
         {
-            isRegenerating = false;
-            currentRegenerationDelay = 0f;
+            IsRegenerating = false;
+            CurrentRegenerationDelay = 0f;
             return;
         }
         
         // Si le joueur vient d'être touché (est invincible), réinitialiser le délai de régénération
         if (isInvincible)
         {
-            currentRegenerationDelay = 0f;
-            isRegenerating = false;
+            CurrentRegenerationDelay = 0f;
+            IsRegenerating = false;
             return;
         }
         
         // Si le joueur n'est pas en train de régénérer, attendre le délai avant de commencer
-        if (!isRegenerating)
+        if (!IsRegenerating)
         {
-            currentRegenerationDelay += deltaTime;
+            CurrentRegenerationDelay += deltaTime;
             
             // Commencer la régénération si le délai est écoulé
-            if (currentRegenerationDelay >= healthRegenerationDelay)
+            if (CurrentRegenerationDelay >= HealthRegenerationDelay)
             {
-                isRegenerating = true;
-                regenerationAccumulator = 0f;
+                IsRegenerating = true;
+                RegenerationAccumulator = 0f;
             }
         }
         // Si le joueur est en train de régénérer, augmenter sa santé progressivement
         else
         {
             // Accumuler la régénération en fonction du temps écoulé
-            regenerationAccumulator += regenerationRate * deltaTime;
+            RegenerationAccumulator += RegenerationRate * deltaTime;
             
             // Si l'accumulateur dépasse 1, ajouter un point de vie
-            if (regenerationAccumulator >= 1.0f)
+            if (RegenerationAccumulator >= 1.0f)
             {
-                int pointsToAdd = (int)regenerationAccumulator;
-                regenerationAccumulator -= pointsToAdd;
+                int pointsToAdd = (int)RegenerationAccumulator;
+                RegenerationAccumulator -= pointsToAdd;
                 
-                currentHealth += pointsToAdd;
+                CurrentHealth += pointsToAdd;
                 
                 // Limiter la santé au maximum
-                if (currentHealth > maxHealth)
+                if (CurrentHealth > MaxHealth)
                 {
-                    currentHealth = maxHealth;
-                    isRegenerating = false; // Arrêter la régénération quand la santé est pleine
+                    CurrentHealth = MaxHealth;
+                    IsRegenerating = false; // Arrêter la régénération quand la santé est pleine
                 }
             }
         }
@@ -327,42 +327,42 @@ public class Player
         if (isInvincible)
             return;
             
-        currentHealth -= damage;
+        CurrentHealth -= damage;
         
         // Activer l'invincibilité temporaire
         isInvincible = true;
-        currentInvincibilityTime = invincibilityTime;
+        CurrentInvincibilityTime = InvincibilityTime;
         
         // Réinitialiser le délai de régénération
-        currentRegenerationDelay = 0f;
-        isRegenerating = false;
+        CurrentRegenerationDelay = 0f;
+        IsRegenerating = false;
         
-        if (currentHealth <= 0)
+        if (CurrentHealth <= 0)
         {
             // Le joueur est mort
-            currentHealth = 0;
+            CurrentHealth = 0;
             // Logique de mort du joueur à implémenter
         }
     }
     
     public bool IsAlive()
     {
-        return currentHealth > 0;
+        return CurrentHealth > 0;
     }
     
     public int GetCurrentHealth()
     {
-        return currentHealth;
+        return CurrentHealth;
     }
     
     public int GetMaxHealth()
     {
-        return maxHealth;
+        return MaxHealth;
     }
     
     public float GetHealthRatio()
     {
-        return (float)currentHealth / maxHealth;
+        return (float)CurrentHealth / MaxHealth;
     }
     
     public bool IsInvincible()
@@ -374,8 +374,8 @@ public class Player
     {
         if (CurrentAnimationState == AnimationState.KnifeAttack)
         {
-            knifeAttackTimer += Raylib.GetFrameTime();
-            if (knifeAttackTimer >= KNIFE_ATTACK_DURATION)
+            KnifeAttackTimer += Raylib.GetFrameTime();
+            if (KnifeAttackTimer >= KNIFE_ATTACK_DURATION)
             {
                 CurrentAnimationState = AnimationState.Idle;
             }
@@ -438,7 +438,7 @@ public class Player
     public void StartKnifeAttack()
     {
         CurrentAnimationState = AnimationState.KnifeAttack;
-        knifeAttackTimer = 0f;
+        KnifeAttackTimer = 0f;
     }
 
     public void StopKnifeAttack()

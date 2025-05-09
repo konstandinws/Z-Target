@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 public class PlayerController {
 
-    private Player player;
-    private ZombieController zombieController;
+    private Player Player;
+    private ZombieController ZombieController;
     // private PlayerView view;
-    Vector2 mouseWorldPos;
+    Vector2 MouseWorldPos;
     private const float KNIFE_RANGE = 100f;
     private const float KNIFE_DAMAGE = 50f;
     private const float KNIFE_COOLDOWN = 0.5f;
@@ -15,9 +15,9 @@ public class PlayerController {
 
     public PlayerController(Player player, ZombieController zombieController)
     {
-        this.player = player;
-        this.zombieController = zombieController;
-        player.mainWeapon = new M1911();
+        this.Player = player;
+        this.ZombieController = zombieController;
+        Player.MainWeapon = new M1911();
     }
 
     public void HandleInput(Camera2D camera)
@@ -41,41 +41,41 @@ public class PlayerController {
 
         // Détecter si le joueur appuie sur Shift pour sprinter
         bool isSprinting = Raylib.IsKeyDown(KeyboardKey.LeftShift) || Raylib.IsKeyDown(KeyboardKey.RightShift);
-        player.SetSprinting(isSprinting);
+        Player.SetSprinting(isSprinting);
 
-        player.Direction = direction != Vector2.Zero ? Vector2.Normalize(direction) : Vector2.Zero;
+        Player.Direction = direction != Vector2.Zero ? Vector2.Normalize(direction) : Vector2.Zero;
     }
 
     private void HandleShooting()
     {
-        if (Raylib.IsMouseButtonDown(MouseButton.Left) && player.mainWeapon.currentAmmo > 0 && !player.isReloading)
+        if (Raylib.IsMouseButtonDown(MouseButton.Left) && Player.MainWeapon.CurrentAmmo > 0 && !Player.IsReloading)
         {
-            player.mainWeapon.Shoot(player.Position, mouseWorldPos, BulletController.Instance);
-            player.StartShooting();
+            Player.MainWeapon.Shoot(Player.Position, MouseWorldPos, BulletController.Instance);
+            Player.StartShooting();
         }
         else
         {
-            player.StopShooting();
+            Player.StopShooting();
         }
     }
 
     private void HandleReload()
     {
-        if (Raylib.IsKeyPressed(KeyboardKey.R) && player.mainWeapon.currentAmmo < player.mainWeapon.clipSize && !player.isReloading && player.mainWeapon.reservAmmo > 0)
+        if (Raylib.IsKeyPressed(KeyboardKey.R) && Player.MainWeapon.CurrentAmmo < Player.MainWeapon.ClipSize && !Player.IsReloading && Player.MainWeapon.ReservAmmo > 0)
         {
-            player.isReloading = true;
-            player.mainWeapon.reloadTimer = 0f;
-            player.mainWeapon.Reload();
-            player.StartReload();
+            Player.IsReloading = true;
+            Player.MainWeapon.ReloadTimer = 0f;
+            Player.MainWeapon.Reload();
+            Player.StartReload();
         }
 
-        if (player.isReloading)
+        if (Player.IsReloading)
         {
-            player.mainWeapon.reloadTimer += Raylib.GetFrameTime();
-            if (player.mainWeapon.reloadTimer >= player.mainWeapon.reloadTime)
+            Player.MainWeapon.ReloadTimer += Raylib.GetFrameTime();
+            if (Player.MainWeapon.ReloadTimer >= Player.MainWeapon.ReloadTime)
             {
-                player.isReloading = false;
-                player.FinishReload();
+                Player.IsReloading = false;
+                Player.FinishReload();
             }
         }
     }
@@ -83,10 +83,10 @@ public class PlayerController {
     private void changeWeapon(){
 
         if(Raylib.IsKeyPressed(KeyboardKey.E)){
-            if(player.secondaryWeapon != null){
-                Weapon temp = player.mainWeapon;
-                player.mainWeapon = player.secondaryWeapon;
-                player.secondaryWeapon = temp;
+            if(Player.SecondaryWeapon != null){
+                Weapon temp = Player.MainWeapon;
+                Player.MainWeapon = Player.SecondaryWeapon;
+                Player.SecondaryWeapon = temp;
             }
         }
     }
@@ -94,9 +94,9 @@ public class PlayerController {
     private void HandleRotation(Camera2D camera)
     {
         Vector2 mouseScreenPos = Raylib.GetMousePosition();
-        mouseWorldPos = Raylib.GetScreenToWorld2D(mouseScreenPos, camera);
+        MouseWorldPos = Raylib.GetScreenToWorld2D(mouseScreenPos, camera);
 
-        player.UpdateAngle(mouseWorldPos);
+        Player.UpdateAngle(MouseWorldPos);
     }
 
     private void HandleKnifeAttack()
@@ -106,8 +106,8 @@ public class PlayerController {
             if (Raylib.GetTime() - lastKnifeAttackTime >= KNIFE_COOLDOWN)
             {
                 lastKnifeAttackTime = (float)Raylib.GetTime();
-                player.StartKnifeAttack();
-                AttackWithKnife(player);
+                Player.StartKnifeAttack();
+                AttackWithKnife(Player);
             }
         }
     }
@@ -134,7 +134,7 @@ public class PlayerController {
                 // Si le zombie est dans le cône d'attaque (angle de 60 degrés)
                 if (angle <= 30f)
                 {
-                    zombieController.HandleKnifeDamage(zombie, (int)KNIFE_DAMAGE);
+                    ZombieController.HandleKnifeDamage(zombie, (int)KNIFE_DAMAGE);
                 }
             }
         }
@@ -143,6 +143,6 @@ public class PlayerController {
     public void Update(float dt, Camera2D camera)
     {
         HandleInput(camera);
-        player.Move(dt);
+        Player.Move(dt);
     }
 }

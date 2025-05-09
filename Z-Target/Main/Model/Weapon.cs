@@ -10,48 +10,48 @@ public enum WeaponType
 
 public abstract class Weapon{
 
-    public string name;
+    public string Name;
     public WeaponType Type { get; protected set; }
     public int Damage;
     public float FireRate;
     public float BulletSpeed;
-    protected float lastShotTime = 0;
-    public int maxAmmo;
-    public int reservAmmo;
-    public int currentAmmo;
-    public int clipSize;
-    public float reloadTimer = 0f;
-    public int points;
-    public float spreadAngle = 1;
+    protected float LastShotTime = 0;
+    public int MaxAmmo;
+    public int ReservAmmo;
+    public int CurrentAmmo;
+    public int ClipSize;
+    public float ReloadTimer = 0f;
+    public int Points;
+    public float SpreadAngle = 1;
 
-    public float reloadTime;
+    public float ReloadTime;
 
     public virtual void Shoot(Vector2 position, Vector2 direction, BulletController bulletController)
     {
-        if (Raylib.GetTime() - lastShotTime >= FireRate)
+        if (Raylib.GetTime() - LastShotTime >= FireRate)
         {
-            Vector2 spreadDirection = BulletSpread(direction, spreadAngle);
-            bulletController.ShootBullet(spreadDirection, Damage, points);
-            lastShotTime = (float)Raylib.GetTime();
-            currentAmmo--;
+            Vector2 spreadDirection = BulletSpread(direction, SpreadAngle);
+            bulletController.ShootBullet(spreadDirection, Damage, Points);
+            LastShotTime = (float)Raylib.GetTime();
+            CurrentAmmo--;
         }
     }
     public virtual void Reload()
     {
-        reservAmmo += currentAmmo;
+        ReservAmmo += CurrentAmmo;
 
-        if (reservAmmo >= clipSize) {
-            currentAmmo = clipSize;
-            reservAmmo -= clipSize;
+        if (ReservAmmo >= ClipSize) {
+            CurrentAmmo = ClipSize;
+            ReservAmmo -= ClipSize;
         } else {
-            currentAmmo = reservAmmo;
-            reservAmmo = 0;
+            CurrentAmmo = ReservAmmo;
+            ReservAmmo = 0;
         }
     }   
 
 
     public void resplenishAmmo(){
-        reservAmmo = maxAmmo;
+        ReservAmmo = MaxAmmo;
     }
 
     protected Vector2 BulletSpread(Vector2 v, float degrees)

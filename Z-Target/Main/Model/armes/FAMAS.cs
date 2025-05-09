@@ -2,17 +2,17 @@ public class FAMAS : Weapon
 {
     public FAMAS()
     {
-        name = "FAMAS";
+        Name = "FAMAS";
         Type = WeaponType.Rifle;
         Damage = 22;
         FireRate = 0.1f;
         BulletSpeed = 900f;
-        clipSize = 30;
-        maxAmmo = 120;
-        reservAmmo = maxAmmo;
-        currentAmmo = clipSize;
-        reloadTime = 2f;
-        points = 10;
-        spreadAngle = 1.1f;
+        ClipSize = 30;
+        MaxAmmo = 120;
+        ReservAmmo = MaxAmmo;
+        CurrentAmmo = ClipSize;
+        ReloadTime = 2f;
+        Points = 10;
+        SpreadAngle = 1.1f;
     }
 }

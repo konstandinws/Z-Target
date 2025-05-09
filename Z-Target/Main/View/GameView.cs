@@ -4,37 +4,37 @@ using System.Numerics;
 
 public class GameView
 {
-    List<IView> views = new List<IView>();
+    List<IView> Views = new List<IView>();
 
-    private HUDView hudView;
-    private Player player;
-    private Boite boite;
-    private Texture2D mapTexture;
+    private HUDView HudView;
+    private Player Player;
+    private Boite Boite;
+    private Texture2D MapTexture;
     
     public GameView(Player player, Boite boite)
     {
-        this.player = player;
-        this.boite = boite;
+        this.Player = player;
+        this.Boite = boite;
         InitializeViews();
         
         // Charger la texture de la carte
-        mapTexture = Raylib.LoadTexture("Main/sprites/map.png");
+        MapTexture = Raylib.LoadTexture("Main/sprites/map.png");
     }
 
     private void InitializeViews()
     {
-        views.Clear();
-        views.Add(new PlayerView(player));
-        views.Add(new ZombieView(player));
-        views.Add(new BulletView());
-        views.Add(new BonusView(player));
-        hudView = new HUDView(player);
-        views.Add(new BoiteView(boite));
+        Views.Clear();
+        Views.Add(new PlayerView(Player));
+        Views.Add(new ZombieView(Player));
+        Views.Add(new BulletView());
+        Views.Add(new BonusView(Player));
+        Views.Add(new BoiteView(Boite));
+        HudView = new HUDView(Player);
     }
 
     public void AddZombieView()
     {
-        views.Add(new ZombieView(player));
+        Views.Add(new ZombieView(Player));
     }
 
     public void ResetViews()
@@ -76,14 +76,14 @@ public class GameView
 
     private void DrawViews()
     {
-        foreach (IView view in views)
+        foreach (IView view in Views)
             view.Draw();
         
     }
 
     public void UpdatePlayer(Player player)
     {
-        this.player = player;
+        this.Player = player;
         InitializeViews();
     }
     
@@ -96,9 +96,9 @@ public class GameView
         Raylib.BeginMode2D(camera);
 
         // Dessiner la carte
-        if (mapTexture.Width > 0 && mapTexture.Height > 0)
+        if (MapTexture.Width > 0 && MapTexture.Height > 0)
         {
-            Raylib.DrawTexture(mapTexture, 0, 0, Color.White);
+            Raylib.DrawTexture(MapTexture, 0, 0, Color.White);
         }
 
         // Dessiner les limites de la zone de jeu
@@ -108,26 +108,12 @@ public class GameView
 
         Raylib.EndMode2D();
         
-        if (hudView != null)
+        if (HudView != null)
         {
-            hudView.Draw();
+            HudView.Draw();
         }
 
         Raylib.EndDrawing();
     }
     
-    // private Player GetPlayerFromViews() // pas obligatoire ????
-    // {
-    //     // Récupérer le joueur depuis la PlayerView
-    //     foreach (var view in views)
-    //     {
-    //         if (view is PlayerView playerView)
-    //         {
-    //             return playerView.GetPlayer();
-    //         }
-    //     }
-        
-    //     // Fallback (ne devrait jamais arriver)
-    //     return null;
-    // }
 }

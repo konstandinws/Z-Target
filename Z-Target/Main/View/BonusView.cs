@@ -2,13 +2,11 @@ using Raylib_cs;
 
 public class BonusView : IView
 {
-    private Player player;
-    private const float bonusIconSize = 30f; // Taille du carré affiché pour le bonus actif
-    private const int textOffset = 40; // Décalage du texte de statut
+    private Player Player;
 
     public BonusView(Player player)
     {
-        this.player = player;
+        this.Player = player;
     }
 
     public void Draw()

@@ -83,7 +83,7 @@ public class ZombieController
             for (int j = BulletController.Instance.BulletList.Count - 1; j >= 0; j--)
             {
                 Bullet bullet = BulletController.Instance.BulletList[j];
-                if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.radius + bullet.Radius)
+                if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.Radius + bullet.Radius)
                 {
                     BonusType? bonus = null;
                     
@@ -174,7 +174,7 @@ public class ZombieController
         foreach (Zombie zombie in zombiesList)
         {
             float distance = Vector2.Distance(zombie.Position, player.Position);
-            float minDistance = zombie.radius + playerRadius;
+            float minDistance = zombie.Radius + playerRadius;
             
             if (distance < minDistance)
             {
