@@ -178,7 +178,7 @@ public class Player
         }
         
         // Supprimer les bonus expirés
-        foreach (var expired in expiredBonuses)
+        foreach (BonusType expired in expiredBonuses)
         {
             ActiveBonuses.Remove(expired);
         }

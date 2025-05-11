@@ -54,7 +54,7 @@ public class BoiteView : IView
         Raylib.SetTextureFilter(ChestTexture, TextureFilter.Point);  // Ajout du filtre pour éviter le flou
 
         // On prend la 1ère colonne
-        SourceRec = new Rectangle(0, 0, FrameWidth, FrameHeight);
+        SourceRec = new Rectangle(FrameWidth, 0, FrameWidth, FrameHeight);
     }
 
     public void Draw()

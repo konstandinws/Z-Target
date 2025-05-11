@@ -62,7 +62,7 @@ public class Bonus
         }
         else
         {
-            // MaxAmmo / Nuke → effet instantané (pas de timer actif)
+            // MaxAmmo / Nuke pas de timer actif
             BonusDuration = 0f;
             IsEffectActive = false;
         }
@@ -70,13 +70,13 @@ public class Bonus
 
     public bool IsExpired()
     {
-        // Bonus disparaît du sol s’il a expiré OU a été ramassé
+        // Bonus disparaît du sol s’il a expiré ou ramassé
         return TimeRemaining <= 0f || IsCollected;
     }
 
     public bool IsEffectOver()
     {
-        // Pour vérifier si l'effet actif (InstaKill / DoublePoints) est terminé
+        // Pour vérifier si l'effet actif instaKill ou doublePoints est terminé
         return IsTimedBonus && IsEffectActive && BonusDuration <= 0f;
     }
 }

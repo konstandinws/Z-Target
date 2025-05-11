@@ -64,7 +64,5 @@ public class BonusController
                 // ZombieController.Instance.KillAllZombies();
                 break;
         }
-
-        // Tu peux aussi afficher un texte "Bonus pris" ici si tu veux
     }
 }
