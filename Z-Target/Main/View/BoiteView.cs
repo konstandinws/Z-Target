@@ -51,7 +51,7 @@ public class BoiteView : IView
     {
         this.Box = box;
         ChestTexture = Raylib.LoadTexture("Main/sprites/boite/RPG Chests.png");
-        Raylib.SetTextureFilter(ChestTexture, TextureFilter.Point);  // Ajout du filtre pour éviter le flou
+        
 
         // On prend la 1ère colonne
         SourceRec = new Rectangle(FrameWidth, 0, FrameWidth, FrameHeight);

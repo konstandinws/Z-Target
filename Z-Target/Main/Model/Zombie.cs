@@ -9,7 +9,7 @@ public class Zombie
     public float Speed = 150;
     public bool IsAlive;
     public int Radius = 27; 
-    public float DropBonusChance = 0.05f;
+    public float DropBonusChance = 0.60f;
 
     public Zombie(Vector2 position, float health, float speed){
         MaxHealth = health;

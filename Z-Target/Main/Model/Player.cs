@@ -51,7 +51,7 @@ public class Player
 
     public bool IsReloading = false;
 
-    public int Score = 0;
+    public int Score = 1000000;
 
     // Système de santé
     private int MaxHealth = 3;
