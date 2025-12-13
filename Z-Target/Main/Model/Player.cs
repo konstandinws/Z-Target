@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using System;
 
-public class Player
+public class Player : IDamageable
 {
     public enum AnimationState
     {
@@ -26,6 +26,7 @@ public class Player
     public WeaponAnimationState CurrentWeaponState { get; private set; } = WeaponAnimationState.Idle;
     public Vector2 Position { get; set; } = new Vector2(GameConfig.ScreenWidth / 2, GameConfig.ScreenHeight / 2);
     public Vector2 Size { get; set; } = new Vector2(50, 50);
+    public float HitBoxRadius => 25;
     public Color Color { get; set; } = Color.Blue;
     public Vector2 Direction = Vector2.Zero;
     public float AngleToMouse;
@@ -345,10 +346,7 @@ public class Player
         }
     }
     
-    public bool IsAlive()
-    {
-        return CurrentHealth > 0;
-    }
+    public bool IsAlive => CurrentHealth > 0;
     
     public int GetCurrentHealth()
     {

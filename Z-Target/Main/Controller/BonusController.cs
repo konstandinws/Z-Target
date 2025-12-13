@@ -49,7 +49,7 @@ public class BonusController
         {
             case BonusType.MaxAmmo:
                 player.MainWeapon.resplenishAmmo();  // Remplit les munitions
-                player.SecondaryWeapon.resplenishAmmo();  // Remplit les munitions
+                player.SecondaryWeapon?.resplenishAmmo();  // Remplit les munitions
                 break;
             case BonusType.InstaKill:
                 player.EnableInstaKill(BonusDuration);  // InstaKill pendant 10 sec

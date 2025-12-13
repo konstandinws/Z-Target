@@ -7,8 +7,8 @@ using System.Numerics;
 
 interface IDamageable 
 {
-    bool IsAlive {get; set;}
-    Vector2 Position {get; set;}
-    int HitBoxRadius {get; set;}
-    void TakeDamage();
+    bool IsAlive {get;}
+    Vector2 Position {get;}
+    float HitBoxRadius {get;}
+    void TakeDamage(int damageAmount);
 }

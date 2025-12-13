@@ -41,7 +41,7 @@ public class GameController
     public void Update(float dt)
     {
         // Si le joueur est mort, ne faire que la vérification de la touche R
-        if (!Player.IsAlive())
+        if (!Player.IsAlive)
         {
             if (Raylib.IsKeyPressed(KeyboardKey.R))
             {

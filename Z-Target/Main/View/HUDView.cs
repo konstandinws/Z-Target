@@ -62,7 +62,7 @@ public class HUDView : IView
         DrawRound();
         
         // Afficher l'écran de game over si le joueur est mort
-        if (!Player.IsAlive())
+        if (!Player.IsAlive)
         {
             DrawGameOver();
         }

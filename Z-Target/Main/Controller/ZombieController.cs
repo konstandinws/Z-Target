@@ -60,7 +60,6 @@ public class ZombieController
         zombie.Health -= damage;
         if (zombie.Health <= 0)
         {
-            zombie.IsAlive = false;
             zombiesList.Remove(zombie);
             roundController.OnZombieKilled();
         }
@@ -166,7 +165,7 @@ public class ZombieController
     private void HandlePlayerCollisions(Player player)
     {
         // Si le joueur est mort, ne pas vérifier les collisions
-        if (!player.IsAlive())
+        if (!player.IsAlive)
             return;
             
         float playerRadius = player.Size.X / 2;
