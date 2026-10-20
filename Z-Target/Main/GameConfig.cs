@@ -1,16 +1,52 @@
-using System.Numerics;
+using System.Text.Json;
 
-public static class GameConfig // classe static pour ne pas avoir d'instance de GameConfig et appeler les variables statiques directement
+// Point d'accès unique à la configuration du jeu, chargée depuis config.jsonc au démarrage.
+// En lecture seule : rien ne la modifie pendant la partie.
+public static class GameConfig
 {
-    public const string WindowTitle = "Z-Target";
-    public const int ScreenWidth = 1200;
-    public const int ScreenHeight = 800;
-    public const int TargetFPS = 60;
+    public const string FILE_PATH = "config.jsonc";
 
-    public const int MAP_SIZE = 3200;
-    public const int PLAY_AREA_SIZE = 2000;
-    // Marge entre le bord de la carte et la zone jouable (600 px de chaque côté)
-    public const int PLAY_AREA_OFFSET = (MAP_SIZE - PLAY_AREA_SIZE) / 2;
+    private static GameSettings? settings;
 
-    public static readonly Vector2 MapCenter = new Vector2(MAP_SIZE / 2f, MAP_SIZE / 2f);
+    private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+    {
+        ReadCommentHandling = JsonCommentHandling.Skip, // autorise les // commentaires dans le fichier
+        AllowTrailingCommas = true,
+    };
+
+    public static GameSettings Settings =>
+        settings ?? throw new InvalidOperationException("GameConfig.Load() must be called before using the config.");
+
+    // Raccourcis vers chaque section (ex: GameConfig.Player.MaxSpeed)
+    public static WindowSettings Window => Settings.Window;
+    public static MapSettings Map => Settings.Map;
+    public static PlayerSettings Player => Settings.Player;
+    public static KnifeSettings Knife => Settings.Knife;
+    public static ZombieSettings Zombie => Settings.Zombie;
+    public static RoundSettings Rounds => Settings.Rounds;
+    public static BonusSettings Bonus => Settings.Bonus;
+    public static MysteryBoxSettings MysteryBox => Settings.MysteryBox;
+    public static BulletSettings Bullet => Settings.Bullet;
+    public static AssetSettings Assets => Settings.Assets;
+
+    public static void Load(string path = FILE_PATH)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"Config file not found: {Path.GetFullPath(path)}");
+
+        try
+        {
+            settings = JsonSerializer.Deserialize<GameSettings>(File.ReadAllText(path), JsonOptions)
+                ?? throw new InvalidDataException($"Config file is empty: {path}");
+        }
+        catch (JsonException e)
+        {
+            throw new InvalidDataException($"Invalid config file {path}: {e.Message}", e);
+        }
+
+        // Vérifie tout de suite que les armes citées existent (sinon l'erreur arriverait en pleine partie)
+        WeaponFactory.Create(Player.StartingWeapon);
+        foreach (string weapon in MysteryBox.Weapons)
+            WeaponFactory.Create(weapon);
+    }
 }

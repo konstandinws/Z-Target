@@ -1,16 +1,30 @@
 using Raylib_cs;
+using System.Numerics;
 
 public class BonusView : IView
 {
-    private const int FONT_SIZE = 10;
-    private const int TEXT_OFFSET_X = 20;
-    private const int TEXT_OFFSET_Y = 10;
+    private const float SPRITE_SCALE = 3f; // icônes 16 px -> 48 px au sol
 
     private BonusController BonusController;
+    private Dictionary<BonusType, Texture2D> Sprites;
 
-    public BonusView(BonusController bonusController)
+    public BonusView(TextureLoader textures, BonusController bonusController)
     {
         this.BonusController = bonusController;
+        Sprites = LoadSprites(textures);
+    }
+
+    // Icône de chaque bonus (utilisée aussi par le HUD)
+    public static Dictionary<BonusType, Texture2D> LoadSprites(TextureLoader textures)
+    {
+        BonusAssets paths = GameConfig.Assets.Bonus;
+        return new Dictionary<BonusType, Texture2D>
+        {
+            [BonusType.MaxAmmo] = textures.Load(paths.MaxAmmo),
+            [BonusType.InstaKill] = textures.Load(paths.InstaKill),
+            [BonusType.DoublePoints] = textures.Load(paths.DoublePoints),
+            [BonusType.Nuke] = textures.Load(paths.Nuke),
+        };
     }
 
     public void Draw()
@@ -18,26 +32,9 @@ public class BonusView : IView
         // Afficher tous les bonus au sol
         foreach (Bonus bonus in BonusController.BonusList)
         {
-            DrawBonus(bonus);
+            Texture2D sprite = Sprites[bonus.Type];
+            Vector2 size = new Vector2(sprite.Width, sprite.Height) * SPRITE_SCALE;
+            Raylib.DrawTextureEx(sprite, bonus.Position - size / 2, 0f, SPRITE_SCALE, Color.White);
         }
-    }
-
-    private void DrawBonus(Bonus bonus)
-    {
-        Raylib.DrawCircleV(bonus.Position, Bonus.RADIUS, GetColor(bonus.Type));
-        Raylib.DrawText(bonus.Type.ToString(), (int)bonus.Position.X - TEXT_OFFSET_X, (int)bonus.Position.Y - TEXT_OFFSET_Y, FONT_SIZE, Color.Black);
-    }
-
-    // Couleur de chaque bonus (utilisée aussi par le HUD)
-    public static Color GetColor(BonusType type)
-    {
-        return type switch
-        {
-            BonusType.MaxAmmo => Color.SkyBlue,
-            BonusType.InstaKill => Color.Red,
-            BonusType.DoublePoints => Color.Gold,
-            BonusType.Nuke => Color.Green,
-            _ => Color.Gray,
-        };
     }
 }

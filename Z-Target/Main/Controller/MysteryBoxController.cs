@@ -5,9 +5,7 @@ public class MysteryBoxController
 {
     private MysteryBox Box;
     private Player Player;
-    private const float INTERACTION_RANGE = 40f; // distance max entre le joueur et la boîte pour interagir
     private float LastInteractionTime = 0f;
-    private const float INTERACTION_COOLDOWN = 0.5f;
 
     public MysteryBoxController(MysteryBox box, Player player)
     {
@@ -20,7 +18,7 @@ public class MysteryBoxController
         float distance = Vector2.Distance(Player.Position, Box.Position);
         float currentTime = (float)Raylib.GetTime();
 
-        if (distance < INTERACTION_RANGE && Raylib.IsKeyPressed(KeyboardKey.F) && !Box.IsOpen && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
+        if (distance < GameConfig.MysteryBox.InteractionRange && Raylib.IsKeyPressed(KeyboardKey.F) && !Box.IsOpen && currentTime - LastInteractionTime >= GameConfig.MysteryBox.InteractionCooldown)
         {
             Console.WriteLine("Open box");
             if (Box.CanOpen(Player))
@@ -31,7 +29,7 @@ public class MysteryBoxController
         }
         if(Box.IsOpen){
             Box.TimeToDisappear(dt);
-            if(Raylib.IsKeyPressed(KeyboardKey.F) && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
+            if(Raylib.IsKeyPressed(KeyboardKey.F) && currentTime - LastInteractionTime >= GameConfig.MysteryBox.InteractionCooldown)
             {
                 Console.WriteLine("Accept weapon");
                 Box.AcceptWeapon(Player);

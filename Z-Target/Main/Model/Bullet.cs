@@ -8,7 +8,7 @@ public class Bullet{
     float Speed;
     public int Damage;
     public int points;
-    public float Radius = 5f;
+    public float Radius = GameConfig.Bullet.Radius;
     public Color Color = Color.Black;
 
     // direction doit être normalisée ; speed, damage et points viennent de l'arme

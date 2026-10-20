@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class PlayerView : IView{
 
-    private const string SPRITES = "Main/sprites";
-
     // Temps d'affichage d'une image pour les animations en boucle
     private const float FEET_FRAME_TIME = 0.05f;
     private const float SHOOT_FRAME_TIME = 0.05f;
@@ -37,26 +35,27 @@ public class PlayerView : IView{
     public PlayerView(TextureLoader textures, Player player){
         this.Player = player;
 
-        IdleSprite = textures.Load($"{SPRITES}/feet/idle/survivor-idle_0.png");
-        WalkSprites = textures.LoadAnimation($"{SPRITES}/feet/walk");
-        RunSprites = textures.LoadAnimation($"{SPRITES}/feet/run");
-        KnifeAttackSprites = textures.LoadAnimation($"{SPRITES}/knife");
+        PlayerAssets paths = GameConfig.Assets.Player;
+        IdleSprite = textures.Load(paths.FeetIdle);
+        WalkSprites = textures.LoadAnimation(paths.FeetWalk);
+        RunSprites = textures.LoadAnimation(paths.FeetRun);
+        KnifeAttackSprites = textures.LoadAnimation(paths.Knife);
 
         WeaponSpritesByType = new Dictionary<WeaponType, WeaponSprites>
         {
-            [WeaponType.Rifle] = LoadWeaponSprites(textures, "rifle"),
-            [WeaponType.Handgun] = LoadWeaponSprites(textures, "handgun"),
-            [WeaponType.Shotgun] = LoadWeaponSprites(textures, "shotgun"),
+            [WeaponType.Rifle] = LoadWeaponSprites(textures, paths.Rifle),
+            [WeaponType.Handgun] = LoadWeaponSprites(textures, paths.Handgun),
+            [WeaponType.Shotgun] = LoadWeaponSprites(textures, paths.Shotgun),
         };
     }
 
-    private static WeaponSprites LoadWeaponSprites(TextureLoader textures, string weapon)
+    private static WeaponSprites LoadWeaponSprites(TextureLoader textures, WeaponAssets paths)
     {
         return new WeaponSprites
         {
-            Idle = textures.Load($"{SPRITES}/{weapon}/idle/survivor-idle_{weapon}_0.png"),
-            Shoot = textures.LoadAnimation($"{SPRITES}/{weapon}/shoot"),
-            Reload = textures.LoadAnimation($"{SPRITES}/{weapon}/reload"),
+            Idle = textures.Load(paths.Idle),
+            Shoot = textures.LoadAnimation(paths.Shoot),
+            Reload = textures.LoadAnimation(paths.Reload),
         };
     }
 

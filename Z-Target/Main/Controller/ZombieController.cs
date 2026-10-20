@@ -17,11 +17,6 @@ public class ZombieController
     // Prévient les autres systèmes (manches, bonus...) qu'un zombie vient de mourir
     public event Action<Zombie, KillCause>? ZombieKilled;
 
-    private const float SEPARATION_RADIUS = 25f;    // distance minimale (de chaque côté) entre deux zombies
-    private const float SPAWN_DISTANCE = 1000f;     // distance d'apparition autour du joueur (hors écran)
-    private const int CONTACT_DAMAGE = 1;           // dégâts infligés au joueur au contact
-    private const float PLAYER_KNOCKBACK = 20f;     // recul du joueur quand il est touché
-    private const int KNIFE_POINTS = 50;            // points par coup de couteau
     private Player player;
     private BulletController bulletController;
 
@@ -55,7 +50,7 @@ public class ZombieController
         float angle = (float)(Random.Shared.NextDouble() * 2 * Math.PI);
         Vector2 direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
 
-        return player.Position + direction * SPAWN_DISTANCE;
+        return player.Position + direction * GameConfig.Zombie.SpawnDistance;
     }
 
     // Inflige des dégâts. Si le zombie meurt, il est retiré de la liste et ZombieKilled est déclenché.
@@ -71,7 +66,7 @@ public class ZombieController
 
     public void HandleKnifeDamage(Zombie zombie, int damage)
     {
-        player.AddPoints(KNIFE_POINTS);
+        player.AddPoints(GameConfig.Knife.Points);
         DamageZombie(zombie, damage, KillCause.Knife);
     }
 
@@ -123,7 +118,7 @@ public class ZombieController
                 Zombie zombie2 = Zombies[j];
 
                 float distance = Vector2.Distance(zombie1.Position, zombie2.Position);
-                float minDist = SEPARATION_RADIUS * 2;
+                float minDist = GameConfig.Zombie.SeparationRadius * 2;
 
                 if (distance < minDist && distance > 0.001f)
                 {
@@ -153,11 +148,11 @@ public class ZombieController
             if (distance < minDistance)
             {
                 // Le zombie touche le joueur
-                player.TakeDamage(CONTACT_DAMAGE);
+                player.TakeDamage(GameConfig.Zombie.ContactDamage);
 
                 // Repousser légèrement le joueur loin du zombie
                 Vector2 pushDirection = Vector2.Normalize(player.Position - zombie.Position);
-                player.Position += pushDirection * PLAYER_KNOCKBACK;
+                player.Position += pushDirection * GameConfig.Zombie.PlayerKnockback;
 
                 // Ne vérifier qu'une collision à la fois pour éviter de perdre trop de vie rapidement
                 return;

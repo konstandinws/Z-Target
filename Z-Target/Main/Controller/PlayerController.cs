@@ -9,10 +9,6 @@ public class PlayerController {
     private BulletController BulletController;
     // private PlayerView view;
     Vector2 MouseWorldPos;
-    private const float KNIFE_RANGE = 100f;
-    private const int KNIFE_DAMAGE = 50;
-    private const float KNIFE_COOLDOWN = 0.5f;
-    private const float KNIFE_HALF_ANGLE = 30f; // cône d'attaque de 60° devant le joueur
     private float lastKnifeAttackTime = 0f;
     private const float DEG_TO_RAD = MathF.PI / 180f;
     private const float RAD_TO_DEG = 180f / MathF.PI;
@@ -107,7 +103,7 @@ public class PlayerController {
     {
         if (Raylib.IsKeyPressed(KeyboardKey.V))
         {
-            if (Raylib.GetTime() - lastKnifeAttackTime >= KNIFE_COOLDOWN)
+            if (Raylib.GetTime() - lastKnifeAttackTime >= GameConfig.Knife.Cooldown)
             {
                 lastKnifeAttackTime = (float)Raylib.GetTime();
                 Player.StartKnifeAttack();
@@ -122,7 +118,7 @@ public class PlayerController {
         {
             Zombie zombie = ZombieController.Zombies[i];
             float distance = Vector2.Distance(player.Position, zombie.Position);
-            if (distance <= KNIFE_RANGE)
+            if (distance <= GameConfig.Knife.Range)
             {
                 // Calculer la direction vers le zombie
                 Vector2 zombieDirection = Vector2.Normalize(zombie.Position - player.Position);
@@ -137,9 +133,9 @@ public class PlayerController {
                 float angle = MathF.Acos(dotProduct) * RAD_TO_DEG;
 
                 // Si le zombie est dans le cône d'attaque
-                if (angle <= KNIFE_HALF_ANGLE)
+                if (angle <= GameConfig.Knife.HalfAngle)
                 {
-                    ZombieController.HandleKnifeDamage(zombie, KNIFE_DAMAGE);
+                    ZombieController.HandleKnifeDamage(zombie, GameConfig.Knife.Damage);
                 }
             }
         }

@@ -3,14 +3,12 @@ using System.Numerics;
 using System;
 public class Zombie : IDamageable
 {
-    public const int RADIUS = 27;
-
     public float Health;
     public float MaxHealth;
     public Vector2 Position {get; set;}
     public float Speed;
     public bool IsAlive => Health > 0;
-    public int Radius = RADIUS;
+    public int Radius = GameConfig.Zombie.Radius;
     public float HitBoxRadius => Radius;
 
     public Zombie(Vector2 position, float health, float speed){

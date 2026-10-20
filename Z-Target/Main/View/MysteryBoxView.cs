@@ -30,7 +30,7 @@ public class MysteryBoxView : IView
     public MysteryBoxView(TextureLoader textures, MysteryBox box)
     {
         this.Box = box;
-        ChestTexture = textures.Load("Main/sprites/box/RPG Chests.png");
+        ChestTexture = textures.Load(GameConfig.Assets.MysteryBox);
         SourceRec = new Rectangle(CHEST_COLUMN * FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE);
     }
 

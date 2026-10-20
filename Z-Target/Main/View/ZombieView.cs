@@ -19,7 +19,7 @@ public class ZombieView : IView
     {
         this.Player = player;
         this.ZombieController = zombieController;
-        ZombieWalkSprites = textures.LoadAnimation("Main/sprites/zombies/move");
+        ZombieWalkSprites = textures.LoadAnimation(GameConfig.Assets.Zombie.Move);
     }
 
     public void Draw()

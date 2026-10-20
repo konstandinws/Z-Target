@@ -6,3 +6,5 @@ obj/
 .vs/
 *.user
 .DS_Store
+
+tools

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public class HUDView : IView
 {
-    private const int W = GameConfig.ScreenWidth;
-    private const int H = GameConfig.ScreenHeight;
+    private static readonly int W = GameConfig.Window.Width;
+    private static readonly int H = GameConfig.Window.Height;
 
     // Tailles de police
     private const int FONT_SIZE = 24;
@@ -17,16 +17,16 @@ public class HUDView : IView
 
     // Score et arme (en bas à droite)
     private static readonly Vector2 SCORE_POS = new Vector2(W - 100, H - 100);
-    private const int WEAPON_ROW_Y = H - 50;
-    private const int WEAPON_NAME_RIGHT_X = W - 150; // le nom de l'arme est aligné à droite sur cette position
-    private const int AMMO_X = W - 130;
+    private static readonly int WEAPON_ROW_Y = H - 50;
+    private static readonly int WEAPON_NAME_RIGHT_X = W - 150; // le nom de l'arme est aligné à droite sur cette position
+    private static readonly int AMMO_X = W - 130;
     private static readonly Vector2 RELOAD_CIRCLE_CENTER = new Vector2(W - 80, H - 45);
     private const float RELOAD_CIRCLE_RADIUS = 20f;
     private const int RELOAD_CIRCLE_SEGMENTS = 60;
 
     // Messages "Reload" / "No Ammo" (sous le joueur)
-    private const int AMMO_WARNING_X = W / 2 - 50;
-    private const int AMMO_WARNING_Y = H / 2 + 70;
+    private static readonly int AMMO_WARNING_X = W / 2 - 50;
+    private static readonly int AMMO_WARNING_Y = H / 2 + 70;
 
     // Barre de sprint (en haut à gauche)
     private const int SPRINT_BAR_X = 20;
@@ -49,17 +49,17 @@ public class HUDView : IView
 
     // Bonus actifs (en bas à gauche, empilés vers le haut)
     private const int BONUS_LIST_X = 10;
-    private const int BONUS_LIST_START_Y = H - 50;
+    private static readonly int BONUS_LIST_START_Y = H - 50;
     private const int BONUS_LIST_SPACING = 40;
-    private const int BONUS_ICON_SIZE = 30;
+    private const float BONUS_ICON_SCALE = 2f; // icônes 16 px -> 32 px dans le HUD
     private const int BONUS_LABEL_SPACING = 10;
 
     // Manche (en haut à droite)
-    private const int ROUND_X = W - 150;
+    private static readonly int ROUND_X = W - 150;
     private const int ROUND_Y = 10;
-    private const int ZOMBIES_LEFT_X = W - 225;
+    private static readonly int ZOMBIES_LEFT_X = W - 225;
     private const int ZOMBIES_LEFT_Y = 40;
-    private const int COUNTDOWN_Y = H - 100;
+    private static readonly int COUNTDOWN_Y = H - 100;
 
     // Game over
     private const int GAME_OVER_SHADOW_OFFSET = 3;
@@ -69,15 +69,17 @@ public class HUDView : IView
 
     private Player Player;
     private RoundController RoundController;
+    private Dictionary<BonusType, Texture2D> BonusSprites;
     private Random Random = new Random();
 
     // Structure simple pour texte flottant
     private List<(string text, Vector2 position, Vector2 velocity, double spawnTime)> floatingTexts = new();
 
-    public HUDView(Player player, RoundController roundController)
+    public HUDView(TextureLoader textures, Player player, RoundController roundController)
     {
         this.Player = player;
         this.RoundController = roundController;
+        BonusSprites = BonusView.LoadSprites(textures);
         player.PointsEarned += AddFloatingPoints;
     }
 
@@ -228,11 +230,15 @@ public class HUDView : IView
             BonusType bonusType = activeBonuses[i];
             int posY = BONUS_LIST_START_Y - i * BONUS_LIST_SPACING;
 
-            Raylib.DrawRectangle(BONUS_LIST_X, posY, BONUS_ICON_SIZE, BONUS_ICON_SIZE, BonusView.GetColor(bonusType));
+            Texture2D icon = BonusSprites[bonusType];
+            int iconSize = (int)(icon.Height * BONUS_ICON_SCALE);
+            Raylib.DrawTextureEx(icon, new Vector2(BONUS_LIST_X, posY), 0f, BONUS_ICON_SCALE, Color.White);
 
+            // Texte centré verticalement à côté de l'icône
             float remainingTime = Player.GetBonusRemainingTime(bonusType);
-            int labelX = BONUS_LIST_X + BONUS_ICON_SIZE + BONUS_LABEL_SPACING;
-            Raylib.DrawText($"{bonusType} ({remainingTime:F1}s)", labelX, posY, SMALL_FONT_SIZE, Color.Black);
+            int labelX = BONUS_LIST_X + (int)(icon.Width * BONUS_ICON_SCALE) + BONUS_LABEL_SPACING;
+            int labelY = posY + (iconSize - SMALL_FONT_SIZE) / 2;
+            Raylib.DrawText($"{bonusType} ({remainingTime:F1}s)", labelX, labelY, SMALL_FONT_SIZE, Color.Black);
         }
     }
 

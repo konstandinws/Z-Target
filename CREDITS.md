@@ -29,3 +29,7 @@
 - **Source:** https://cainos.itch.io/pixel-art-top-down-basic
 - **License:** Cainos asset license: free and commercial use allowed, modification allowed, credit not required but appreciated. **Redistributing or reselling the tileset itself is not allowed.**
 - **Files:** `Z-Target/Main/sprites/map.png` (map built from the tileset; the raw tileset files are intentionally not included in this repository)
+
+### Bonus icons
+- **Author:** original work made for Z-Target (generated with `tools/make_bonus_sprites.py`)
+- **Files:** `Z-Target/Main/sprites/bonus/`

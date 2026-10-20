@@ -17,14 +17,11 @@ public class GameController
     private MysteryBox MysteryBox;
     private RoundController RoundController;
 
-    // La boîte mystère est au centre horizontalement, 600 px au-dessus du point de départ du joueur
-    private static readonly Vector2 BOX_POSITION = GameConfig.MapCenter - new Vector2(0, 600);
-
     public GameController()
     {
         //settings pour la cam
         Camera = new Camera2D();
-        Camera.Offset = new Vector2(GameConfig.ScreenWidth / 2f, GameConfig.ScreenHeight / 2f);
+        Camera.Offset = new Vector2(GameConfig.Window.Width / 2f, GameConfig.Window.Height / 2f);
         Camera.Rotation = 0f;
         Camera.Zoom = 1f;
 
@@ -37,8 +34,8 @@ public class GameController
                    nameof(MysteryBoxController), nameof(View))]
     private void InitGame()
     {
-        Player = new Player(new M1911()); // arme de départ
-        MysteryBox = new MysteryBox() { Position = BOX_POSITION };
+        Player = new Player(WeaponFactory.Create(GameConfig.Player.StartingWeapon));
+        MysteryBox = new MysteryBox();
 
         BulletController = new BulletController(Player);
         ZombieController = new ZombieController(Player, BulletController);

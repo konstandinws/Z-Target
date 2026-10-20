@@ -11,11 +11,6 @@ public enum BonusType
 
 public class Bonus
 {
-    public const float LIFETIME = 10f;        // temps pendant lequel le bonus reste au sol
-    public const float EFFECT_DURATION = 10f; // durée de l'effet (pour InstaKill / DoublePoints)
-    public const float RADIUS = 20f;          // taille affichée
-    public const float PICKUP_RADIUS = 25f;   // distance de ramassage (un peu plus large que l'affichage)
-
     public Vector2 Position ;
     public BonusType Type ;
 
@@ -30,7 +25,7 @@ public class Bonus
     {
         Position = position;
         Type = type;
-        TimeRemaining = LIFETIME;
+        TimeRemaining = GameConfig.Bonus.Lifetime;
         IsCollected = false;
         IsEffectActive = false;
 
@@ -58,7 +53,7 @@ public class Bonus
 
         if (IsTimedBonus)
         {
-            BonusDuration = EFFECT_DURATION;
+            BonusDuration = GameConfig.Bonus.EffectDuration;
             IsEffectActive = true;
         }
         else

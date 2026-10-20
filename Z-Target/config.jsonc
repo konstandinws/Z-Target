@@ -1,0 +1,126 @@
+// Configuration générale de Z-Target.
+// Ce fichier est lu au démarrage du jeu : pas besoin de recompiler après une modification.
+// Unités : distances en pixels, durées en secondes, vitesses en pixels par seconde.
+{
+  "Window": {
+    "Title": "Z-Target",
+    "Width": 1200,
+    "Height": 800,
+    "TargetFPS": 60
+  },
+
+  "Map": {
+    "Size": 3200,          // taille totale de l'image de la carte
+    "PlayAreaSize": 2000   // zone jouable, centrée sur la carte (le reste est hors limites)
+  },
+
+  "Player": {
+    "Size": 50,
+    "StartingScore": 500,
+    "StartingWeapon": "M1911",
+    "MaxHealth": 3,
+    "Acceleration": 10000,
+    "MaxSpeed": 300,
+    "SprintMultiplier": 1.6,
+    "Friction": 0.85,               // plus proche de 1 = effet patinoire
+    "MaxSprintDuration": 3.0,
+    "SprintDepletionRate": 1.0,     // endurance perdue par seconde de sprint
+    "SprintRecoveryRate": 0.5,      // endurance récupérée par seconde
+    "InvincibilityTime": 0.5,       // invincibilité après avoir été touché
+    "HealthRegenerationDelay": 2.0, // attente avant de commencer à régénérer
+    "HealthRegenerationRate": 1.0   // points de vie par seconde
+  },
+
+  "Knife": {
+    "Range": 100,
+    "Damage": 50,
+    "Cooldown": 0.5,
+    "HalfAngle": 30,       // cône d'attaque : 30° de chaque côté = 60° au total
+    "AttackDuration": 0.3,
+    "Points": 50           // points gagnés par coup
+  },
+
+  "Zombie": {
+    "Radius": 27,
+    "SeparationRadius": 25, // distance minimale (de chaque côté) entre deux zombies
+    "SpawnDistance": 1000,  // distance d'apparition autour du joueur (hors écran)
+    "ContactDamage": 1,
+    "PlayerKnockback": 20   // recul du joueur quand il est touché
+  },
+
+  "Rounds": {
+    "MaxZombiesOnScreen": 24,
+    "SpawnCooldown": 1.0,
+    "TransitionDuration": 5.0, // pause entre deux manches
+    // Valeurs à la manche 1, puis ajout à chaque manche suivante
+    "BaseZombieCount": 5,
+    "ZombiesAddedPerRound": 2.2,
+    "BaseZombieHealth": 50,
+    "HealthAddedPerRound": 20,
+    "BaseZombieSpeed": 50,
+    "SpeedAddedPerRound": 2,
+    "MaxZombieSpeed": 150
+  },
+
+  "Bonus": {
+    "DropChance": 0.01,     // 10 % de chances qu'un zombie tué fasse tomber un bonus
+    "Lifetime": 10,         // temps au sol avant de disparaître
+    "EffectDuration": 10,   // durée d'InstaKill et DoublePoints
+    "PickupRadius": 25
+  },
+
+  "MysteryBox": {
+    "PositionX": 1600,
+    "PositionY": 1000,
+    "Price": 950,
+    "WeaponDisplayDuration": 10, // temps pour accepter l'arme avant que la boîte se referme
+    "InteractionRange": 40,
+    "InteractionCooldown": 0.5,
+    "Weapons": [
+      "AK47", "M4", "M1911", "FAMAS", "GALIL", "MP5", "GLOCK", "SPAS12",
+      "OLYMPIA", "UMP45", "RPK", "AWP", "PYTHON", "MP40", "RAYGUN"
+    ]
+  },
+
+  "Bullet": {
+    "Radius": 5,
+    "MaxDistanceFromPlayer": 1500 // au-delà, la balle est supprimée
+  },
+
+  // Chemins des images (relatifs au dossier Z-Target/).
+  // Un chemin finissant par .png = une image ; sinon = un dossier d'animation (toutes les images numérotées qu'il contient).
+  "Assets": {
+    "Map": "Main/sprites/map.png",
+    "MysteryBox": "Main/sprites/box/RPG Chests.png",
+    "Bonus": {
+      "MaxAmmo": "Main/sprites/bonus/max_ammo.png",
+      "InstaKill": "Main/sprites/bonus/insta_kill.png",
+      "DoublePoints": "Main/sprites/bonus/double_points.png",
+      "Nuke": "Main/sprites/bonus/nuke.png"
+    },
+    "Player": {
+      "FeetIdle": "Main/sprites/feet/idle/survivor-idle_0.png",
+      "FeetWalk": "Main/sprites/feet/walk",
+      "FeetRun": "Main/sprites/feet/run",
+      "Knife": "Main/sprites/knife",
+      "Rifle": {
+        "Idle": "Main/sprites/rifle/idle/survivor-idle_rifle_0.png",
+        "Shoot": "Main/sprites/rifle/shoot",
+        "Reload": "Main/sprites/rifle/reload"
+      },
+      "Handgun": {
+        "Idle": "Main/sprites/handgun/idle/survivor-idle_handgun_0.png",
+        "Shoot": "Main/sprites/handgun/shoot",
+        "Reload": "Main/sprites/handgun/reload"
+      },
+      "Shotgun": {
+        "Idle": "Main/sprites/shotgun/idle/survivor-idle_shotgun_0.png",
+        "Shoot": "Main/sprites/shotgun/shoot",
+        "Reload": "Main/sprites/shotgun/reload"
+      }
+    },
+    "Zombie": {
+      "Move": "Main/sprites/zombies/move"
+    }
+  }
+}

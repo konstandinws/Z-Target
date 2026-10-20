@@ -7,8 +7,6 @@ public class BonusController
 {
     public List<Bonus> BonusList = new List<Bonus>();
 
-    private const float DROP_BONUS_CHANCE = 0.20f; // 20 % de chances qu'un zombie tué fasse tomber un bonus
-
     private static readonly BonusType[] DroppableBonuses =
     {
         BonusType.MaxAmmo,
@@ -33,7 +31,7 @@ public class BonusController
         if (cause == KillCause.Nuke)
             return;
 
-        if (Random.Shared.NextDouble() < DROP_BONUS_CHANCE)
+        if (Random.Shared.NextDouble() < GameConfig.Bonus.DropChance)
         {
             BonusType type = DroppableBonuses[Random.Shared.Next(DroppableBonuses.Length)];
             CreateBonus(zombie.Position, type);
@@ -53,7 +51,7 @@ public class BonusController
             bonus.Update(deltaTime);
 
             // Vérifie si le joueur ramasse le bonus
-            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < Bonus.PICKUP_RADIUS + player.HitBoxRadius)
+            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < GameConfig.Bonus.PickupRadius + player.HitBoxRadius)
             {
                 bonus.Collect();
                 ApplyBonus(bonus.Type);
@@ -77,10 +75,10 @@ public class BonusController
                 player.SecondaryWeapon?.ReplenishAmmo();
                 break;
             case BonusType.InstaKill:
-                player.EnableInstaKill(Bonus.EFFECT_DURATION);
+                player.EnableInstaKill(GameConfig.Bonus.EffectDuration);
                 break;
             case BonusType.DoublePoints:
-                player.EnableDoublePoints(Bonus.EFFECT_DURATION);
+                player.EnableDoublePoints(GameConfig.Bonus.EffectDuration);
                 break;
             case BonusType.Nuke:
                 zombieController.KillAllZombies();

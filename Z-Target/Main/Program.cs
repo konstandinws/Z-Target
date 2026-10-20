@@ -5,8 +5,10 @@ class Program
     static void Main(string[] args)
     {
 
-        Raylib.InitWindow(GameConfig.ScreenWidth, GameConfig.ScreenHeight, GameConfig.WindowTitle);
-        Raylib.SetTargetFPS(GameConfig.TargetFPS);
+        GameConfig.Load();
+
+        Raylib.InitWindow(GameConfig.Window.Width, GameConfig.Window.Height, GameConfig.Window.Title);
+        Raylib.SetTargetFPS(GameConfig.Window.TargetFPS);
 
         GameController gameController = new GameController();
 

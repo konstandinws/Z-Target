@@ -2,8 +2,6 @@ using Raylib_cs;
 using System.Numerics;
 public class BulletController{
 
-    private const float MAX_DISTANCE_FROM_PLAYER = 1500f; // au-delà, la balle est supprimée
-
     public List<Bullet> BulletList = new List<Bullet>();
     private Player Player;
 
@@ -26,7 +24,7 @@ public class BulletController{
 
     private bool IsOutOfBounds(Vector2 pos)
     {
-        return Vector2.Distance(pos, Player.Position) > MAX_DISTANCE_FROM_PLAYER;
+        return Vector2.Distance(pos, Player.Position) > GameConfig.Bullet.MaxDistanceFromPlayer;
     }
 
     // direction doit être normalisée

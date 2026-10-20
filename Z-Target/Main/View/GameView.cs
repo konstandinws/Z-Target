@@ -16,32 +16,33 @@ public class GameView
         Views.Add(new PlayerView(textures, player));
         Views.Add(new ZombieView(textures, player, zombieController));
         Views.Add(new BulletView(bulletController));
-        Views.Add(new BonusView(bonusController));
+        Views.Add(new BonusView(textures, bonusController));
         Views.Add(new MysteryBoxView(textures, mysteryBox));
-        HudView = new HUDView(player, roundController);
+        HudView = new HUDView(textures, player, roundController);
 
         // Charger la texture de la carte
-        MapTexture = textures.Load("Main/sprites/map.png");
+        MapTexture = textures.Load(GameConfig.Assets.Map);
     }
 
     private void DrawMapLimits()
     {
-        int offset = GameConfig.PLAY_AREA_OFFSET;
+        int offset = GameConfig.Map.PlayAreaOffset;
+        int size = GameConfig.Map.PlayAreaSize;
         int wallThickness = WALL_THICKNESS;
 
         // Mur du haut
-        Raylib.DrawRectangle(offset, offset, GameConfig.PLAY_AREA_SIZE, wallThickness, Color.Black);
+        Raylib.DrawRectangle(offset, offset, size, wallThickness, Color.Black);
         
         // Mur du bas
-        Raylib.DrawRectangle(offset, offset + GameConfig.PLAY_AREA_SIZE - wallThickness, 
-            GameConfig.PLAY_AREA_SIZE, wallThickness, Color.Black);
+        Raylib.DrawRectangle(offset, offset + size - wallThickness, 
+            size, wallThickness, Color.Black);
         
         // Mur de gauche
-        Raylib.DrawRectangle(offset, offset, wallThickness, GameConfig.PLAY_AREA_SIZE, Color.Black);
+        Raylib.DrawRectangle(offset, offset, wallThickness, size, Color.Black);
         
         // Mur de droite
-        Raylib.DrawRectangle(offset + GameConfig.PLAY_AREA_SIZE - wallThickness, offset, 
-            wallThickness, GameConfig.PLAY_AREA_SIZE, Color.Black);
+        Raylib.DrawRectangle(offset + size - wallThickness, offset, 
+            wallThickness, size, Color.Black);
     }
 
     private void DrawViews()
