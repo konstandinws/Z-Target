@@ -65,7 +65,7 @@ public class PlayerController {
 
     private void HandleReload(float dt)
     {
-        if (Raylib.IsKeyPressed(KeyboardKey.R) && Player.MainWeapon.CurrentAmmo < Player.MainWeapon.ClipSize && !Player.IsReloading && Player.MainWeapon.ReservAmmo > 0)
+        if (Raylib.IsKeyPressed(KeyboardKey.R) && Player.MainWeapon.CurrentAmmo < Player.MainWeapon.ClipSize && !Player.IsReloading && Player.MainWeapon.ReserveAmmo > 0)
         {
             Player.IsReloading = true;
             Player.MainWeapon.ReloadTimer = 0f;

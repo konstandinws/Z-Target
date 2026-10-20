@@ -11,7 +11,7 @@ public class SPAS12 : Weapon
         BulletSpeed = 700f;
         ClipSize = 8;
         MaxAmmo = 48;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 2.5f;
         Points = 20;

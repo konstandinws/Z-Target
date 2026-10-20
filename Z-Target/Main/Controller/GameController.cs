@@ -13,8 +13,8 @@ public class GameController
     private ZombieController ZombieController;
     private BulletController BulletController;
     private BonusController BonusController;
-    private BoiteController BoiteController;
-    private Boite Boite;
+    private MysteryBoxController MysteryBoxController;
+    private MysteryBox MysteryBox;
     private RoundController RoundController;
 
     // La boîte mystère est au centre horizontalement, 600 px au-dessus du point de départ du joueur
@@ -32,22 +32,22 @@ public class GameController
     }
 
     // Crée une partie neuve : tous les objets sont recréés, rien ne reste de la partie précédente
-    [MemberNotNull(nameof(Player), nameof(Boite), nameof(BulletController), nameof(ZombieController),
+    [MemberNotNull(nameof(Player), nameof(MysteryBox), nameof(BulletController), nameof(ZombieController),
                    nameof(RoundController), nameof(BonusController), nameof(PlayerController),
-                   nameof(BoiteController), nameof(View))]
+                   nameof(MysteryBoxController), nameof(View))]
     private void InitGame()
     {
         Player = new Player(new M1911()); // arme de départ
-        Boite = new Boite() { Position = BOX_POSITION };
+        MysteryBox = new MysteryBox() { Position = BOX_POSITION };
 
         BulletController = new BulletController(Player);
         ZombieController = new ZombieController(Player, BulletController);
         RoundController = new RoundController(ZombieController);
         BonusController = new BonusController(Player, ZombieController);
         PlayerController = new PlayerController(Player, ZombieController, BulletController);
-        BoiteController = new BoiteController(Boite, Player);
+        MysteryBoxController = new MysteryBoxController(MysteryBox, Player);
 
-        View = new GameView(Textures, Player, Boite, ZombieController, BulletController, BonusController, RoundController);
+        View = new GameView(Textures, Player, MysteryBox, ZombieController, BulletController, BonusController, RoundController);
         Camera.Target = Player.Position;
     }
 
@@ -67,7 +67,7 @@ public class GameController
         ZombieController.Update(dt);
         BulletController.Update(dt);
         BonusController.Update(dt);
-        BoiteController.Update(dt);
+        MysteryBoxController.Update(dt);
         RoundController.Update(dt);
 
         Camera.Target = Player.Position;

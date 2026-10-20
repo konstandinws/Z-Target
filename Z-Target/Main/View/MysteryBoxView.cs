@@ -1,7 +1,7 @@
 using Raylib_cs;
 using System.Numerics;
 
-public class BoiteView : IView
+public class MysteryBoxView : IView
 {
     // Le sprite sheet "RPG Chests.png" : chaque colonne est un coffre, chaque ligne une étape de l'animation
     private const int FRAME_SIZE = 32;         // taille d'une image dans le sprite sheet
@@ -21,16 +21,16 @@ public class BoiteView : IView
     private const int LINE_SPACING = 20;
     private const int PRICE_TEXT_OFFSET_Y = 60;
 
-    private Boite Box;
+    private MysteryBox Box;
     private Texture2D ChestTexture;
     private Rectangle SourceRec;
     private int CurrentFrame = CLOSED_FRAME;
     private float Timer = 0f;
 
-    public BoiteView(TextureLoader textures, Boite box)
+    public MysteryBoxView(TextureLoader textures, MysteryBox box)
     {
         this.Box = box;
-        ChestTexture = textures.Load("Main/sprites/boite/RPG Chests.png");
+        ChestTexture = textures.Load("Main/sprites/box/RPG Chests.png");
         SourceRec = new Rectangle(CHEST_COLUMN * FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE);
     }
 

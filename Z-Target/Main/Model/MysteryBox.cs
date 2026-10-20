@@ -2,7 +2,7 @@ using System.Numerics;
 using Raylib_cs;
 using System;
 
-public class Boite{
+public class MysteryBox{
     private const float WEAPON_DISPLAY_DURATION = 10f; // temps pour accepter l'arme avant que la boîte se referme
     private const int BOX_PRICE = 950;
 

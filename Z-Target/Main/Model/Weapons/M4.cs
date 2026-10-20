@@ -12,7 +12,7 @@ public class M4 : Weapon
         BulletSpeed = 1000f;
         ClipSize = 30;
         MaxAmmo = 120;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 2f;
         Points = 10;

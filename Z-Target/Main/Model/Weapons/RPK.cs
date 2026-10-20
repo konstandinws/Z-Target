@@ -9,7 +9,7 @@ public class RPK : Weapon
         BulletSpeed = 900f;
         ClipSize = 75;
         MaxAmmo = 340;  
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 3f;
         Points = 15;

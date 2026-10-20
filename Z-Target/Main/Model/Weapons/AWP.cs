@@ -14,7 +14,7 @@ public class AWP : Weapon
         BulletSpeed = 1200f;
         ClipSize = 5;
         MaxAmmo = 15;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 2.2f;
         Points = 12;

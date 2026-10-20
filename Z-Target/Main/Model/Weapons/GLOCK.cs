@@ -11,7 +11,7 @@ public class GLOCK : Weapon
         BulletSpeed = 800f;
         ClipSize = 15;
         MaxAmmo = 60;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 1.5f;
         Points = 15;

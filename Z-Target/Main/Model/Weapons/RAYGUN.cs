@@ -9,7 +9,7 @@ public class RAYGUN : Weapon
         BulletSpeed = 700f;
         ClipSize = 11;
         MaxAmmo = 45;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 1.8f;
         Points = 7;

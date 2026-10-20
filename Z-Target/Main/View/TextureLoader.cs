@@ -25,7 +25,7 @@ public class TextureLoader
             .ToList();
 
         if (files.Count == 0)
-            throw new FileNotFoundException($"Aucune image trouvée dans le dossier {folder}");
+            throw new FileNotFoundException($"No images found in folder {folder}");
 
         return files.Select(Load).ToList();
     }

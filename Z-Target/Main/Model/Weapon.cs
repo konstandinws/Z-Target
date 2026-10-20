@@ -17,7 +17,7 @@ public abstract class Weapon{
     public float BulletSpeed;
     protected float LastShotTime = 0;
     public int MaxAmmo;
-    public int ReservAmmo;
+    public int ReserveAmmo;
     public int CurrentAmmo;
     public int ClipSize;
     public float ReloadTimer = 0f;
@@ -50,20 +50,20 @@ public abstract class Weapon{
 
     public virtual void Reload()
     {
-        ReservAmmo += CurrentAmmo;
+        ReserveAmmo += CurrentAmmo;
 
-        if (ReservAmmo >= ClipSize) {
+        if (ReserveAmmo >= ClipSize) {
             CurrentAmmo = ClipSize;
-            ReservAmmo -= ClipSize;
+            ReserveAmmo -= ClipSize;
         } else {
-            CurrentAmmo = ReservAmmo;
-            ReservAmmo = 0;
+            CurrentAmmo = ReserveAmmo;
+            ReserveAmmo = 0;
         }
     }
 
 
-    public void resplenishAmmo(){
-        ReservAmmo = MaxAmmo;
+    public void ReplenishAmmo(){
+        ReserveAmmo = MaxAmmo;
     }
 
     // Fait tourner une direction d'un angle aléatoire entre -degrees/2 et +degrees/2

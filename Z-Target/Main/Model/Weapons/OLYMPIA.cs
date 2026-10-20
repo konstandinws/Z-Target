@@ -11,7 +11,7 @@ public class OLYMPIA : Weapon
         BulletSpeed = 700f;
         ClipSize = 2;
         MaxAmmo = 12;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 2.5f;
         Points = 20;

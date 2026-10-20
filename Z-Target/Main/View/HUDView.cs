@@ -102,14 +102,14 @@ public class HUDView : IView
         }
         else
         {
-            Raylib.DrawText($"{weapon.CurrentAmmo}/{weapon.ReservAmmo}", AMMO_X, WEAPON_ROW_Y, FONT_SIZE, Color.Black);
+            Raylib.DrawText($"{weapon.CurrentAmmo}/{weapon.ReserveAmmo}", AMMO_X, WEAPON_ROW_Y, FONT_SIZE, Color.Black);
         }
 
-        if (weapon.CurrentAmmo == 0 && weapon.ReservAmmo > 0)
+        if (weapon.CurrentAmmo == 0 && weapon.ReserveAmmo > 0)
         {
             Raylib.DrawText("Reload", AMMO_WARNING_X, AMMO_WARNING_Y, FONT_SIZE, Color.Red);
         }
-        if (weapon.ReservAmmo == 0 && weapon.CurrentAmmo == 0)
+        if (weapon.ReserveAmmo == 0 && weapon.CurrentAmmo == 0)
         {
             Raylib.DrawText("No Ammo", AMMO_WARNING_X, AMMO_WARNING_Y, FONT_SIZE, Color.Red);
         }
@@ -245,7 +245,7 @@ public class HUDView : IView
         Raylib.DrawText(gameOverText, textX + GAME_OVER_SHADOW_OFFSET, textY + GAME_OVER_SHADOW_OFFSET, GAME_OVER_FONT_SIZE, SHADOW_COLOR);
         Raylib.DrawText(gameOverText, textX, textY, GAME_OVER_FONT_SIZE, Color.Red);
 
-        string hintText = "Appuyez sur R pour rejouer (Echap pour quitter)";
+        string hintText = "Press R to play again (Esc to quit)";
         int hintX = (W - Raylib.MeasureText(hintText, GAME_OVER_HINT_FONT_SIZE)) / 2;
         int hintY = textY + GAME_OVER_FONT_SIZE + GAME_OVER_HINT_SPACING;
 

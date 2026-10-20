@@ -73,8 +73,8 @@ public class BonusController
         switch (type)
         {
             case BonusType.MaxAmmo:
-                player.MainWeapon.resplenishAmmo();
-                player.SecondaryWeapon?.resplenishAmmo();
+                player.MainWeapon.ReplenishAmmo();
+                player.SecondaryWeapon?.ReplenishAmmo();
                 break;
             case BonusType.InstaKill:
                 player.EnableInstaKill(Bonus.EFFECT_DURATION);

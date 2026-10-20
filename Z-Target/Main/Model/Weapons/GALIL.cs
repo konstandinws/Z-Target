@@ -10,7 +10,7 @@ public class GALIL : Weapon
         BulletSpeed = 900f;
         ClipSize = 30;
         MaxAmmo = 120;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 2f;
         Points = 10;

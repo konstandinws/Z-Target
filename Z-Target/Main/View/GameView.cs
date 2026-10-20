@@ -10,14 +10,14 @@ public class GameView
     private HUDView HudView;
     private Texture2D MapTexture;
 
-    public GameView(TextureLoader textures, Player player, Boite boite, ZombieController zombieController,
+    public GameView(TextureLoader textures, Player player, MysteryBox mysteryBox, ZombieController zombieController,
                     BulletController bulletController, BonusController bonusController, RoundController roundController)
     {
         Views.Add(new PlayerView(textures, player));
         Views.Add(new ZombieView(textures, player, zombieController));
         Views.Add(new BulletView(bulletController));
         Views.Add(new BonusView(bonusController));
-        Views.Add(new BoiteView(textures, boite));
+        Views.Add(new MysteryBoxView(textures, mysteryBox));
         HudView = new HUDView(player, roundController);
 
         // Charger la texture de la carte

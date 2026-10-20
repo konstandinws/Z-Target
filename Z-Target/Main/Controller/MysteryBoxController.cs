@@ -1,15 +1,15 @@
 using System.Numerics;
 using Raylib_cs;
 
-public class BoiteController
+public class MysteryBoxController
 {
-    private Boite Box;
+    private MysteryBox Box;
     private Player Player;
     private const float INTERACTION_RANGE = 40f; // distance max entre le joueur et la boîte pour interagir
     private float LastInteractionTime = 0f;
     private const float INTERACTION_COOLDOWN = 0.5f;
 
-    public BoiteController(Boite box, Player player)
+    public MysteryBoxController(MysteryBox box, Player player)
     {
         this.Box = box;
         this.Player = player;

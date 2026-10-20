@@ -9,7 +9,7 @@ public class PYTHON : Weapon
         BulletSpeed = 900f;
         ClipSize = 6;
         MaxAmmo = 36;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 1.8f;
         Points = 7;

@@ -11,7 +11,7 @@ public class M1911 : Weapon
         BulletSpeed = 800f;
         ClipSize = 7;
         MaxAmmo = 56;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 1.5f;
         Points = 15;

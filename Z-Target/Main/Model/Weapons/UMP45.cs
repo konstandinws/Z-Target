@@ -9,7 +9,7 @@ public class UMP45 : Weapon
         BulletSpeed = 900f;
         ClipSize = 30;
         MaxAmmo = 120;
-        ReservAmmo = MaxAmmo;
+        ReserveAmmo = MaxAmmo;
         CurrentAmmo = ClipSize;
         ReloadTime = 1.3f;
         Points = 7;
