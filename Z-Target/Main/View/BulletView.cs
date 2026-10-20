@@ -2,12 +2,15 @@ using Raylib_cs;
 using System.Numerics;
 
 class BulletView : IView{
- public void Draw(){
-    List<Bullet> bulletList = BulletController.Instance.BulletList;
-    if (BulletController.Instance.BulletList.Count() > 0){
-        foreach(Bullet bullet in bulletList){
+    private BulletController BulletController;
+
+    public BulletView(BulletController bulletController){
+        this.BulletController = bulletController;
+    }
+
+    public void Draw(){
+        foreach(Bullet bullet in BulletController.BulletList){
             Raylib.DrawCircleV(bullet.Position, bullet.Radius, bullet.Color);
         }
     }
-  }
 }

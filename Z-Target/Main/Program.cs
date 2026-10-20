@@ -1,4 +1,3 @@
-﻿using System.Security.Cryptography.X509Certificates;
 using Raylib_cs;
 
 class Program
@@ -6,21 +5,22 @@ class Program
     static void Main(string[] args)
     {
 
-        Raylib.InitWindow(GameConfig.ScreenWidth, GameConfig.ScreenHeight, "test");
+        Raylib.InitWindow(GameConfig.ScreenWidth, GameConfig.ScreenHeight, GameConfig.WindowTitle);
         Raylib.SetTargetFPS(GameConfig.TargetFPS);
 
-        GameController GameController = new GameController();
+        GameController gameController = new GameController();
 
         while (!Raylib.WindowShouldClose())
         {
             float deltaTime = Raylib.GetFrameTime();
             
             
-            GameController.Update(deltaTime);
-            GameController.Draw();
+            gameController.Update(deltaTime);
+            gameController.Draw();
 
         }
 
+        gameController.Unload();
         Raylib.CloseWindow();
     }
 }

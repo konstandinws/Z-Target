@@ -11,11 +11,13 @@ public enum BonusType
 
 public class Bonus
 {
+    public const float LIFETIME = 10f;        // temps pendant lequel le bonus reste au sol
+    public const float EFFECT_DURATION = 10f; // durée de l'effet (pour InstaKill / DoublePoints)
+    public const float RADIUS = 20f;          // taille affichée
+    public const float PICKUP_RADIUS = 25f;   // distance de ramassage (un peu plus large que l'affichage)
+
     public Vector2 Position ;
     public BonusType Type ;
-
-    private const float Lifetime = 10f;       // Bonus reste au sol 10 secondes
-    private const float EffectDuration = 10f; // Durée de l'effet (pour InstaKill / DoublePoints)
 
     public float TimeRemaining ;    // Temps avant disparition au sol
     public float BonusDuration ;    // Temps restant de l'effet actif
@@ -28,7 +30,7 @@ public class Bonus
     {
         Position = position;
         Type = type;
-        TimeRemaining = Lifetime;   // Tous les bonus restent au sol 10 sec
+        TimeRemaining = LIFETIME;
         IsCollected = false;
         IsEffectActive = false;
 
@@ -56,8 +58,7 @@ public class Bonus
 
         if (IsTimedBonus)
         {
-            // Démarre l'effet de 10s après ramassage
-            BonusDuration = EffectDuration;
+            BonusDuration = EFFECT_DURATION;
             IsEffectActive = true;
         }
         else
@@ -70,7 +71,7 @@ public class Bonus
 
     public bool IsExpired()
     {
-        // Bonus disparaît du sol s’il a expiré ou ramassé
+        // Bonus disparaît du sol s'il a expiré ou ramassé
         return TimeRemaining <= 0f || IsCollected;
     }
 

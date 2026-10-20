@@ -5,22 +5,47 @@ using Raylib_cs;
 
 public class BonusController
 {
-    public static BonusController Instance = new BonusController();
-
     public List<Bonus> BonusList = new List<Bonus>();
 
-    private float BonusRadius = 25f;  // Rayon du bonus pour collisions
-    private float BonusDuration = 10f;
+    private const float DROP_BONUS_CHANCE = 0.20f; // 20 % de chances qu'un zombie tué fasse tomber un bonus
 
-    private BonusController() { }
+    private static readonly BonusType[] DroppableBonuses =
+    {
+        BonusType.MaxAmmo,
+        BonusType.InstaKill,
+        BonusType.DoublePoints,
+        BonusType.Nuke,
+    };
+
+    private Player player;
+    private ZombieController zombieController;
+
+    public BonusController(Player player, ZombieController zombieController)
+    {
+        this.player = player;
+        this.zombieController = zombieController;
+        zombieController.ZombieKilled += OnZombieKilled;
+    }
+
+    private void OnZombieKilled(Zombie zombie, KillCause cause)
+    {
+        // Pas de bonus sur les zombies tués par une Nuke (sinon une Nuke en ferait tomber plein d'autres)
+        if (cause == KillCause.Nuke)
+            return;
+
+        if (Random.Shared.NextDouble() < DROP_BONUS_CHANCE)
+        {
+            BonusType type = DroppableBonuses[Random.Shared.Next(DroppableBonuses.Length)];
+            CreateBonus(zombie.Position, type);
+        }
+    }
 
     public void CreateBonus(Vector2 position, BonusType type)
     {
-        Bonus bonus = new Bonus(position, type);
-        BonusList.Add(bonus);
+        BonusList.Add(new Bonus(position, type));
     }
 
-    public void Update(float deltaTime, Player player)
+    public void Update(float deltaTime)
     {
         for (int i = BonusList.Count - 1; i >= 0; i--)
         {
@@ -28,10 +53,10 @@ public class BonusController
             bonus.Update(deltaTime);
 
             // Vérifie si le joueur ramasse le bonus
-            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < BonusRadius + player.Size.X/2)
+            if (!bonus.IsCollected && Vector2.Distance(bonus.Position, player.Position) < Bonus.PICKUP_RADIUS + player.HitBoxRadius)
             {
                 bonus.Collect();
-                ApplyBonus(player, bonus.Type);
+                ApplyBonus(bonus.Type);
                 // Une fois ramassé, on le supprime de la liste
                 BonusList.RemoveAt(i);
             }
@@ -43,25 +68,22 @@ public class BonusController
         }
     }
 
-    private void ApplyBonus(Player player, BonusType type)
+    private void ApplyBonus(BonusType type)
     {
         switch (type)
         {
             case BonusType.MaxAmmo:
-                player.MainWeapon.resplenishAmmo();  // Remplit les munitions
-                player.SecondaryWeapon?.resplenishAmmo();  // Remplit les munitions
+                player.MainWeapon.resplenishAmmo();
+                player.SecondaryWeapon?.resplenishAmmo();
                 break;
             case BonusType.InstaKill:
-                player.EnableInstaKill(BonusDuration);  // InstaKill pendant 10 sec
+                player.EnableInstaKill(Bonus.EFFECT_DURATION);
                 break;
             case BonusType.DoublePoints:
-                player.EnableDoublePoints(BonusDuration);  // Double points 10 sec
+                player.EnableDoublePoints(Bonus.EFFECT_DURATION);
                 break;
             case BonusType.Nuke:
-                // Effet Nuke : tue tous les zombies
-                ZombieController.zombiesList.Clear();  // Tue tous les zombies
-                // Ou si le ZombieController a une instance statique:
-                // ZombieController.Instance.KillAllZombies();
+                zombieController.KillAllZombies();
                 break;
         }
     }

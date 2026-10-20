@@ -6,26 +6,30 @@ public class PlayerController {
 
     private Player Player;
     private ZombieController ZombieController;
+    private BulletController BulletController;
     // private PlayerView view;
     Vector2 MouseWorldPos;
     private const float KNIFE_RANGE = 100f;
-    private const float KNIFE_DAMAGE = 50f;
+    private const int KNIFE_DAMAGE = 50;
     private const float KNIFE_COOLDOWN = 0.5f;
+    private const float KNIFE_HALF_ANGLE = 30f; // cône d'attaque de 60° devant le joueur
     private float lastKnifeAttackTime = 0f;
+    private const float DEG_TO_RAD = MathF.PI / 180f;
+    private const float RAD_TO_DEG = 180f / MathF.PI;
 
-    public PlayerController(Player player, ZombieController zombieController)
+    public PlayerController(Player player, ZombieController zombieController, BulletController bulletController)
     {
         this.Player = player;
         this.ZombieController = zombieController;
-        Player.MainWeapon = new M1911();
+        this.BulletController = bulletController;
     }
 
-    public void HandleInput(Camera2D camera)
+    public void HandleInput(float dt, Camera2D camera)
     {
         HandleMovement();
         HandleRotation(camera);
         HandleShooting();
-        HandleReload();
+        HandleReload(dt);
         changeWeapon();
         HandleKnifeAttack();
     }
@@ -50,7 +54,7 @@ public class PlayerController {
     {
         if (Raylib.IsMouseButtonDown(MouseButton.Left) && Player.MainWeapon.CurrentAmmo > 0 && !Player.IsReloading)
         {
-            Player.MainWeapon.Shoot(Player.Position, MouseWorldPos, BulletController.Instance);
+            Player.MainWeapon.Shoot(Player.Position, MouseWorldPos, BulletController);
             Player.StartShooting();
         }
         else
@@ -59,7 +63,7 @@ public class PlayerController {
         }
     }
 
-    private void HandleReload()
+    private void HandleReload(float dt)
     {
         if (Raylib.IsKeyPressed(KeyboardKey.R) && Player.MainWeapon.CurrentAmmo < Player.MainWeapon.ClipSize && !Player.IsReloading && Player.MainWeapon.ReservAmmo > 0)
         {
@@ -71,7 +75,7 @@ public class PlayerController {
 
         if (Player.IsReloading)
         {
-            Player.MainWeapon.ReloadTimer += Raylib.GetFrameTime();
+            Player.MainWeapon.ReloadTimer += dt;
             if (Player.MainWeapon.ReloadTimer >= Player.MainWeapon.ReloadTime)
             {
                 Player.IsReloading = false;
@@ -114,9 +118,9 @@ public class PlayerController {
 
     private void AttackWithKnife(Player player)
     {
-        for (int i = ZombieController.zombiesList.Count - 1; i >= 0; i--)
+        for (int i = ZombieController.Zombies.Count - 1; i >= 0; i--)
         {
-            Zombie zombie = ZombieController.zombiesList[i];
+            Zombie zombie = ZombieController.Zombies[i];
             float distance = Vector2.Distance(player.Position, zombie.Position);
             if (distance <= KNIFE_RANGE)
             {
@@ -124,17 +128,18 @@ public class PlayerController {
                 Vector2 zombieDirection = Vector2.Normalize(zombie.Position - player.Position);
                 
                 // Convertir l'angle de la souris en radians
-                float mouseAngleRad = player.AngleToMouse * (MathF.PI / 180f);
+                float mouseAngleRad = player.AngleToMouse * DEG_TO_RAD;
                 Vector2 mouseDirection = new Vector2(MathF.Cos(mouseAngleRad), MathF.Sin(mouseAngleRad));
                 
                 // Calculer l'angle entre la direction de la souris et la direction vers le zombie
-                float dotProduct = Vector2.Dot(mouseDirection, zombieDirection);
-                float angle = MathF.Acos(dotProduct) * (180f / MathF.PI);
-                
-                // Si le zombie est dans le cône d'attaque (angle de 60 degrés)
-                if (angle <= 30f)
+                // (Clamp : à cause des arrondis, le produit scalaire peut dépasser 1 et Acos renverrait NaN)
+                float dotProduct = Math.Clamp(Vector2.Dot(mouseDirection, zombieDirection), -1f, 1f);
+                float angle = MathF.Acos(dotProduct) * RAD_TO_DEG;
+
+                // Si le zombie est dans le cône d'attaque
+                if (angle <= KNIFE_HALF_ANGLE)
                 {
-                    ZombieController.HandleKnifeDamage(zombie, (int)KNIFE_DAMAGE);
+                    ZombieController.HandleKnifeDamage(zombie, KNIFE_DAMAGE);
                 }
             }
         }
@@ -142,7 +147,7 @@ public class PlayerController {
 
     public void Update(float dt, Camera2D camera)
     {
-        HandleInput(camera);
+        HandleInput(dt, camera);
         Player.Move(dt);
     }
 }

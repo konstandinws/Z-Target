@@ -4,49 +4,29 @@ using System.Collections.Generic;
 
 public class ZombieView : IView
 {
+    private const float FRAME_TIME = 0.1f;       // temps d'affichage d'une image
+    private const float SPRITE_SCALE = 4f;       // taille du sprite = rayon du zombie x 4
+    private const float HEALTH_BAR_HEIGHT = 5f;
+    private const float HEALTH_BAR_OFFSET = 3f;  // barre de vie placée à 3 rayons au-dessus du centre
+
     private List<Texture2D> ZombieWalkSprites;
     private float AnimationTimer = 0f;
-    private const float ANIMATION_SPEED = 0.1f;
     private int CurrentFrame = 0;
-    private const int ANIMATION_FRAMES = 20;
     private Player Player;
+    private ZombieController ZombieController;
 
-    public ZombieView(Player player)
+    public ZombieView(TextureLoader textures, Player player, ZombieController zombieController)
     {
         this.Player = player;
-        // Charger les sprites de marche des zombies
-        ZombieWalkSprites = new List<Texture2D>();
-        for (int i = 0; i < ANIMATION_FRAMES; i++)
-        {
-            string spritePath = $"Main/sprites/zombies/move/skeleton-move_{i}.png";
-            var texture = Raylib.LoadTexture(spritePath);
-            if (texture.Width == 0 || texture.Height == 0)
-            {
-                Console.WriteLine($"Erreur: Impossible de charger le sprite {spritePath}");
-                // Utiliser le premier sprite valide comme fallback
-                if (ZombieWalkSprites.Count > 0)
-                {
-                    ZombieWalkSprites.Add(ZombieWalkSprites[0]);
-                }
-                else
-                {
-                    // Si aucun sprite n'est chargé, créer une texture vide
-                    ZombieWalkSprites.Add(Raylib.LoadTexture("Main/sprites/zombies/move/skeleton-move_0.png"));
-                }
-            }
-            else
-            {
-                ZombieWalkSprites.Add(texture);
-            }
-        }
+        this.ZombieController = zombieController;
+        ZombieWalkSprites = textures.LoadAnimation("Main/sprites/zombies/move");
     }
 
     public void Draw()
     {
-        List<Zombie> zombiesList = ZombieController.zombiesList;
+        List<Zombie> zombiesList = ZombieController.Zombies;
         zombiesList.Sort((a, b) => a.Position.Y.CompareTo(b.Position.Y)); // Tri par position Y
 
-        // Mettre à jour l'animation
         UpdateAnimation();
 
         foreach(Zombie zombie in zombiesList)
@@ -59,48 +39,38 @@ public class ZombieView : IView
     private void UpdateAnimation()
     {
         AnimationTimer += Raylib.GetFrameTime();
-        if (AnimationTimer >= ANIMATION_SPEED)
+        if (AnimationTimer >= FRAME_TIME)
         {
             AnimationTimer = 0f;
-            CurrentFrame = (CurrentFrame + 1) % ANIMATION_FRAMES;
+            CurrentFrame = (CurrentFrame + 1) % ZombieWalkSprites.Count;
         }
     }
 
     private void DrawZombie(Zombie zombie)
     {
-        // Calculer la direction vers le joueur
+        // Angle vers le joueur
         Vector2 direction = Vector2.Normalize(Player.Position - zombie.Position);
-        
-        // Calculer l'angle vers le joueur
         float angle = MathF.Atan2(direction.Y, direction.X) * (180f / MathF.PI);
 
-        // Calculer la taille du zombie (doublée)
-        Vector2 zombieSize = new Vector2(zombie.Radius * 4, zombie.Radius * 4);
+        float spriteSize = zombie.Radius * SPRITE_SCALE;
+        Vector2 zombieSize = new Vector2(spriteSize, spriteSize);
+        Texture2D sprite = ZombieWalkSprites[CurrentFrame];
 
-        // Vérifier si le sprite actuel est valide
-        if (CurrentFrame < ZombieWalkSprites.Count && ZombieWalkSprites[CurrentFrame].Width > 0)
-        {
-            // Dessiner le sprite du zombie
-            Raylib.DrawTexturePro(
-                ZombieWalkSprites[CurrentFrame],
-                new Rectangle(0, 0, ZombieWalkSprites[CurrentFrame].Width, ZombieWalkSprites[CurrentFrame].Height),
-                new Rectangle(zombie.Position.X, zombie.Position.Y, zombieSize.X, zombieSize.Y),
-                zombieSize / 2f,
-                angle,
-                Color.White
-            );
-        }
+        Raylib.DrawTexturePro(
+            sprite,
+            new Rectangle(0, 0, sprite.Width, sprite.Height),
+            new Rectangle(zombie.Position.X, zombie.Position.Y, zombieSize.X, zombieSize.Y),
+            zombieSize / 2f,
+            angle,
+            Color.White
+        );
     }
 
     public void DrawHealthBar(Zombie zombie)
     {
-        float health = zombie.Health;
-        float maxHealth = zombie.MaxHealth;
-        float length = (health/maxHealth) * zombie.Radius * 4; // Doublé pour correspondre à la nouvelle taille
-        float height = 5;
-        Vector2 size = new Vector2(length, height);
-        Vector2 healthBarPos = new Vector2(zombie.Position.X - zombie.Radius * 2, zombie.Position.Y - (float)(zombie.Radius * 3)); // Ajusté pour la nouvelle taille
-        Raylib.DrawRectangleV(healthBarPos, size, Color.Red);
+        float fullWidth = zombie.Radius * SPRITE_SCALE; // même largeur que le sprite
+        float width = (zombie.Health / zombie.MaxHealth) * fullWidth;
+        Vector2 healthBarPos = new Vector2(zombie.Position.X - fullWidth / 2, zombie.Position.Y - zombie.Radius * HEALTH_BAR_OFFSET);
+        Raylib.DrawRectangleV(healthBarPos, new Vector2(width, HEALTH_BAR_HEIGHT), Color.Red);
     }
 }
-

@@ -2,124 +2,111 @@ using System.Numerics;
 using Raylib_cs;
 using System.Collections.Generic;
 
+// Ce qui a tué un zombie (permet par ex. de ne pas faire tomber de bonus avec la Nuke)
+public enum KillCause
+{
+    Bullet,
+    Knife,
+    Nuke
+}
+
 public class ZombieController
 {
-    public static List<Zombie> zombiesList = new List<Zombie>();
-    private float collisionRadius = 25f;
-    private float gridSize = 100f; // Taille des cellules de la grille
+    public List<Zombie> Zombies { get; } = new List<Zombie>();
+
+    // Prévient les autres systèmes (manches, bonus...) qu'un zombie vient de mourir
+    public event Action<Zombie, KillCause>? ZombieKilled;
+
+    private const float SEPARATION_RADIUS = 25f;    // distance minimale (de chaque côté) entre deux zombies
+    private const float SPAWN_DISTANCE = 1000f;     // distance d'apparition autour du joueur (hors écran)
+    private const int CONTACT_DAMAGE = 1;           // dégâts infligés au joueur au contact
+    private const float PLAYER_KNOCKBACK = 20f;     // recul du joueur quand il est touché
+    private const int KNIFE_POINTS = 50;            // points par coup de couteau
     private Player player;
-    private List<Zombie> zombiesToRemove = new List<Zombie>();
-    private RoundController roundController;
-    public ZombieController(Player player, RoundController roundController)
+    private BulletController bulletController;
+
+    public ZombieController(Player player, BulletController bulletController)
     {
         this.player = player;
-        this.roundController = roundController;
+        this.bulletController = bulletController;
     }
 
-    public void Update(float dt, Player player)
+    public void Update(float dt)
     {
-        foreach (Zombie z in zombiesList)
+        foreach (Zombie z in Zombies)
         {
             z.Move(dt, player.Position);
         }
 
         HandleCollisions();
         HandleBulletCollisions();
-        HandlePlayerCollisions(player);
-
-        // Supprimer les zombies morts après toutes les mises à jour
-        foreach (var zombie in zombiesToRemove)
-        {
-            zombiesList.Remove(zombie);
-        }
-        zombiesToRemove.Clear();
+        HandlePlayerCollisions();
     }
 
-    public void CreateZombies(float health, float speed)
+    public void CreateZombie(float health, float speed)
     {
         Vector2 spawnPosition = GetRandomSpawnPosition();
-
-        Zombie zombie = new Zombie(spawnPosition, health, speed);
-        zombiesList.Add(zombie);
+        Zombies.Add(new Zombie(spawnPosition, health, speed));
     }
 
     private Vector2 GetRandomSpawnPosition()
-{
-    // Spawn autour de la map (hors de l'écran par exemple)
-    float distanceFromPlayer = 1000f;  // 600 unités du joueur
-    double angle = Raylib.GetRandomValue(0, 360) * Math.PI / 180.0;
+    {
+        // Spawn autour du joueur, hors de l'écran, dans une direction au hasard
+        float angle = (float)(Random.Shared.NextDouble() * 2 * Math.PI);
+        Vector2 direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
 
-    float x = player.Position.X + (float)Math.Cos(angle) * distanceFromPlayer;
-    float y = player.Position.Y + (float)Math.Sin(angle) * distanceFromPlayer;
+        return player.Position + direction * SPAWN_DISTANCE;
+    }
 
-    return new Vector2(x, y);
-}
+    // Inflige des dégâts. Si le zombie meurt, il est retiré de la liste et ZombieKilled est déclenché.
+    public void DamageZombie(Zombie zombie, int damage, KillCause cause)
+    {
+        zombie.TakeDamage(damage);
+        if (!zombie.IsAlive)
+        {
+            Zombies.Remove(zombie);
+            ZombieKilled?.Invoke(zombie, cause);
+        }
+    }
 
     public void HandleKnifeDamage(Zombie zombie, int damage)
     {
-        zombie.Health -= damage;
-        if (zombie.Health <= 0)
+        player.AddPoints(KNIFE_POINTS);
+        DamageZombie(zombie, damage, KillCause.Knife);
+    }
+
+    // Tue tous les zombies (bonus Nuke)
+    public void KillAllZombies()
+    {
+        List<Zombie> killed = new List<Zombie>(Zombies);
+        Zombies.Clear();
+        foreach (Zombie zombie in killed)
         {
-            zombiesList.Remove(zombie);
-            roundController.OnZombieKilled();
+            ZombieKilled?.Invoke(zombie, KillCause.Nuke);
         }
-        
-        // Ajouter des points pour chaque coup de couteau
-        int points = 50; // Points de base pour un coup de couteau
-        if (player.HasActiveBonus(BonusType.DoublePoints))
-        {
-            points *= 2;
-        }
-        player.Score += points;
-        HUDView.Instance.AddFloatingPoints(points);
     }
 
     private void HandleBulletCollisions()
     {
-        for (int i = zombiesList.Count - 1; i >= 0; i--)
+        List<Bullet> bullets = bulletController.BulletList;
+
+        for (int i = Zombies.Count - 1; i >= 0; i--)
         {
-            Zombie zombie = zombiesList[i];
-            for (int j = BulletController.Instance.BulletList.Count - 1; j >= 0; j--)
+            Zombie zombie = Zombies[i];
+            for (int j = bullets.Count - 1; j >= 0; j--)
             {
-                Bullet bullet = BulletController.Instance.BulletList[j];
+                Bullet bullet = bullets[j];
                 if (Vector2.Distance(zombie.Position, bullet.Position) < zombie.Radius + bullet.Radius)
                 {
-                    BonusType? bonus = null;
-                    
-                    // Vérifier si InstaKill est actif - tuer instantanément
-                    if (player.HasActiveBonus(BonusType.InstaKill))
-                    {
-                        bonus = zombie.HandleDamage((int)zombie.MaxHealth); // Force la mort
-                    }
-                    else 
-                    {
-                        // Dégâts normaux
-                        bonus = zombie.HandleDamage(bullet.Damage);
-                    }
-                    
-                    // Calculer les points avec bonus DoublePoints si actif
-                    int points = bullet.points;
-                    if (player.HasActiveBonus(BonusType.DoublePoints))
-                    {
-                        points *= 2;
-                    }
-                    
-                    // Attribuer les points
-                    player.Score += points;
-                    HUDView.Instance.AddFloatingPoints(points);
-                    
-                    BulletController.Instance.BulletList.RemoveAt(j);
-                    
+                    // InstaKill : dégâts suffisants pour tuer en un coup
+                    int damage = player.HasActiveBonus(BonusType.InstaKill) ? (int)zombie.MaxHealth : bullet.Damage;
+
+                    player.AddPoints(bullet.points);
+                    bullets.RemoveAt(j);
+                    DamageZombie(zombie, damage, KillCause.Bullet);
+
                     if (!zombie.IsAlive)
-                    {
-                        if (bonus.HasValue)
-                        {
-                            BonusController.Instance.CreateBonus(zombie.Position, bonus.Value);
-                        }
-                        zombiesList.RemoveAt(i);
-                        roundController.OnZombieKilled();
                         break;
-                    }
                 }
             }
         }
@@ -128,22 +115,22 @@ public class ZombieController
     private void HandleCollisions()
     {
         // Vérifier les collisions entre chaque paire de zombies
-        for (int i = 0; i < zombiesList.Count; i++)
+        for (int i = 0; i < Zombies.Count; i++)
         {
-            for (int j = i + 1; j < zombiesList.Count; j++)
+            for (int j = i + 1; j < Zombies.Count; j++)
             {
-                Zombie zombie1 = zombiesList[i];
-                Zombie zombie2 = zombiesList[j];
-                
+                Zombie zombie1 = Zombies[i];
+                Zombie zombie2 = Zombies[j];
+
                 float distance = Vector2.Distance(zombie1.Position, zombie2.Position);
-                float minDist = collisionRadius * 2;
+                float minDist = SEPARATION_RADIUS * 2;
 
                 if (distance < minDist && distance > 0.001f)
                 {
                     // Calculer la direction de poussée
                     Vector2 pushDir = Vector2.Normalize(zombie1.Position - zombie2.Position);
                     float pushAmount = (minDist - distance) * 0.5f;
-                    
+
                     // Appliquer la poussée aux deux zombies
                     zombie1.Position += pushDir * pushAmount;
                     zombie2.Position -= pushDir * pushAmount;
@@ -152,38 +139,26 @@ public class ZombieController
         }
     }
 
-    // Méthode pour tuer tous les zombies (utilisée par le bonus Nuke)
-    public void KillAllZombies()
-    {
-        for (int i = zombiesList.Count - 1; i >= 0; i--)
-        {
-            // Possibilité de créer une animation ou effet spécial ici
-            zombiesList.RemoveAt(i);
-        }
-    }
-
-    private void HandlePlayerCollisions(Player player)
+    private void HandlePlayerCollisions()
     {
         // Si le joueur est mort, ne pas vérifier les collisions
         if (!player.IsAlive)
             return;
-            
-        float playerRadius = player.Size.X / 2;
-        
-        foreach (Zombie zombie in zombiesList)
+
+        foreach (Zombie zombie in Zombies)
         {
             float distance = Vector2.Distance(zombie.Position, player.Position);
-            float minDistance = zombie.Radius + playerRadius;
-            
+            float minDistance = zombie.Radius + player.HitBoxRadius;
+
             if (distance < minDistance)
             {
                 // Le zombie touche le joueur
-                player.TakeDamage(1); // Infliger 1 point de dégâts
-                
+                player.TakeDamage(CONTACT_DAMAGE);
+
                 // Repousser légèrement le joueur loin du zombie
                 Vector2 pushDirection = Vector2.Normalize(player.Position - zombie.Position);
-                player.Position += pushDirection * 20f; // Pousser le joueur de 20 unités
-                
+                player.Position += pushDirection * PLAYER_KNOCKBACK;
+
                 // Ne vérifier qu'une collision à la fois pour éviter de perdre trop de vie rapidement
                 return;
             }

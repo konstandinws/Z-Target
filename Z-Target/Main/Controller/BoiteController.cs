@@ -5,7 +5,7 @@ public class BoiteController
 {
     private Boite Box;
     private Player Player;
-    private float InteractionRange = 40f;
+    private const float INTERACTION_RANGE = 40f; // distance max entre le joueur et la boîte pour interagir
     private float LastInteractionTime = 0f;
     private const float INTERACTION_COOLDOWN = 0.5f;
 
@@ -20,7 +20,7 @@ public class BoiteController
         float distance = Vector2.Distance(Player.Position, Box.Position);
         float currentTime = (float)Raylib.GetTime();
 
-        if (distance < InteractionRange && Raylib.IsKeyPressed(KeyboardKey.F) && !Box.IsOpen && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
+        if (distance < INTERACTION_RANGE && Raylib.IsKeyPressed(KeyboardKey.F) && !Box.IsOpen && currentTime - LastInteractionTime >= INTERACTION_COOLDOWN)
         {
             Console.WriteLine("Open box");
             if (Box.CanOpen(Player))

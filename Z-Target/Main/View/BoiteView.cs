@@ -1,109 +1,93 @@
-// using Raylib_cs;
-// using System.Numerics;
-
-// public class BoiteView : IView
-// {
-//     private Boite box;
-//     private int boxSize = 40;
-
-//     public BoiteView(Boite box)
-//     {
-//         this.box = box;
-//     }
-
-//     public void Draw()
-//     {
-//         Color color = box.IsOpen ? Color.Gold : Color.Brown;
-//         Raylib.DrawRectangle((int)box.Position.X - boxSize/2, (int)box.Position.Y - boxSize/2, boxSize, boxSize, color);
-
-//         if (box.IsOpen && box.Weapon != null)
-//         {
-
-//             Raylib.DrawText($"Time to disappear: {box.WeaponTimeToDisappear}", (int)box.Position.X - 40, (int)box.Position.Y - 40, 16, Color.Black);
-//             Raylib.DrawText($"Press R to accept {box.Weapon.name}", (int)box.Position.X - 40, (int)box.Position.Y - 20, 16, Color.Black);
-//         }
-//         else
-//         {
-//             Raylib.DrawText($"Press F ({box.BoxPrice})", (int)box.Position.X - 40, (int)box.Position.Y - 60, 16, Color.White);
-//         }
-//     }
-// }
-
-// "Main/sprites/boite/RPG Chests.png"
 using Raylib_cs;
 using System.Numerics;
 
 public class BoiteView : IView
 {
+    // Le sprite sheet "RPG Chests.png" : chaque colonne est un coffre, chaque ligne une étape de l'animation
+    private const int FRAME_SIZE = 32;         // taille d'une image dans le sprite sheet
+    private const int CHEST_COLUMN = 1;        // colonne du coffre utilisé (0 = première colonne)
+    private const int LAST_OPENING_FRAME = 3;  // ouverture : images 0 -> 3
+    private const int FIRST_CLOSING_FRAME = 4; // fermeture : images 3 -> 4 -> 5 -> 0
+    private const int LAST_CLOSING_FRAME = 5;
+    private const int CLOSED_FRAME = 0;
+    private const float FRAME_TIME = 0.15f;
+    private const int SCALE = 4;               // le coffre est affiché 4 fois plus grand
+    private const int DRAWN_SIZE = FRAME_SIZE * SCALE;
+
+    // Position des textes par rapport au centre de la boîte
+    private const int FONT_SIZE = 16;
+    private const int TEXT_OFFSET_X = 40;
+    private const int OPEN_TEXT_OFFSET_Y = 100;
+    private const int LINE_SPACING = 20;
+    private const int PRICE_TEXT_OFFSET_Y = 60;
+
     private Boite Box;
-    private int Multiplier = 4;
-    private int BoxSize = 32;  // On s'aligne sur la taille du sprite
     private Texture2D ChestTexture;
     private Rectangle SourceRec;
-    private int FrameWidth = 32;
-    private int FrameHeight = 32;
-    private int CurrentFrame = 0;
-    private float FrameTime = 0.15f;
+    private int CurrentFrame = CLOSED_FRAME;
     private float Timer = 0f;
-    private int TextOffset = 100;
 
-    public BoiteView(Boite box)
+    public BoiteView(TextureLoader textures, Boite box)
     {
         this.Box = box;
-        ChestTexture = Raylib.LoadTexture("Main/sprites/boite/RPG Chests.png");
-        
-
-        // On prend la 1ère colonne
-        SourceRec = new Rectangle(FrameWidth, 0, FrameWidth, FrameHeight);
+        ChestTexture = textures.Load("Main/sprites/boite/RPG Chests.png");
+        SourceRec = new Rectangle(CHEST_COLUMN * FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE);
     }
 
     public void Draw()
     {
         Vector2 position = Box.Position;
 
-        // Mise à jour de l'animation
-        Timer += Raylib.GetFrameTime();
+        UpdateAnimation();
 
-        if (Timer >= FrameTime)
-        {
-            Timer = 0f;
-
-            // Si la boîte est ouverte, on joue l'animation
-            if (Box.IsOpen)
-            {
-                if (CurrentFrame >= 3) CurrentFrame = 3;
-                else CurrentFrame++;
-            }
-            else
-            {
-                // Animation de fermeture: 4 -> 5 -> 0
-                if (CurrentFrame == 3) CurrentFrame = 4;
-                else if (CurrentFrame == 4) CurrentFrame = 5;
-                else if (CurrentFrame == 5) CurrentFrame = 0;
-            }
-
-            SourceRec.Y = CurrentFrame * FrameHeight;
-        }
-
-        // Dessine le coffre animé avec la taille multipliée par 4
         Raylib.DrawTexturePro(
             ChestTexture,
             SourceRec,
-            new Rectangle(position.X - (BoxSize * Multiplier) / 2, position.Y - (BoxSize * Multiplier) / 2, BoxSize * Multiplier, BoxSize * Multiplier),
-            new Vector2(0, 0),
+            new Rectangle(position.X - DRAWN_SIZE / 2, position.Y - DRAWN_SIZE / 2, DRAWN_SIZE, DRAWN_SIZE),
+            Vector2.Zero,
             0f,
             Color.White
         );
 
-        // Dessine les textes
+        int textX = (int)position.X - TEXT_OFFSET_X;
         if (Box.IsOpen && Box.Weapon != null)
         {
-            Raylib.DrawText($"Time to disappear: {Math.Round(Box.WeaponTimeToDisappear, 0)}", (int)position.X - 40, (int)position.Y - TextOffset, 16, Color.Black);
-            Raylib.DrawText($"Press F to accept {Box.Weapon.Name}", (int)position.X - 40, (int)position.Y - TextOffset + 20, 16, Color.Black);
+            int textY = (int)position.Y - OPEN_TEXT_OFFSET_Y;
+            Raylib.DrawText($"Time to disappear: {Math.Round(Box.WeaponTimeToDisappear, 0)}", textX, textY, FONT_SIZE, Color.Black);
+            Raylib.DrawText($"Press F to accept {Box.Weapon.Name}", textX, textY + LINE_SPACING, FONT_SIZE, Color.Black);
         }
         else
         {
-            Raylib.DrawText($"Press F ({Box.BoxPrice})", (int)position.X - 40, (int)position.Y - 60, 16, Color.White);
+            Raylib.DrawText($"Press F ({Box.BoxPrice})", textX, (int)position.Y - PRICE_TEXT_OFFSET_Y, FONT_SIZE, Color.White);
         }
+    }
+
+    private void UpdateAnimation()
+    {
+        Timer += Raylib.GetFrameTime();
+        if (Timer < FRAME_TIME)
+            return;
+
+        Timer = 0f;
+
+        if (Box.IsOpen)
+        {
+            // Ouverture : on avance jusqu'à la dernière image, puis on reste dessus
+            if (CurrentFrame < LAST_OPENING_FRAME) CurrentFrame++;
+        }
+        else if (CurrentFrame == LAST_OPENING_FRAME)
+        {
+            CurrentFrame = FIRST_CLOSING_FRAME;
+        }
+        else if (CurrentFrame >= FIRST_CLOSING_FRAME && CurrentFrame < LAST_CLOSING_FRAME)
+        {
+            CurrentFrame++;
+        }
+        else if (CurrentFrame == LAST_CLOSING_FRAME)
+        {
+            CurrentFrame = CLOSED_FRAME;
+        }
+
+        SourceRec.Y = CurrentFrame * FRAME_SIZE;
     }
 }

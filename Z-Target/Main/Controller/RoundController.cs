@@ -1,28 +1,33 @@
 public class RoundController
 {
-    public int CurrentRound { get; private set; } = -1;
+    // Réglages de difficulté
+    private const int MAX_ZOMBIES_ON_SCREEN = 24;     // limite de zombies vivants en même temps
+    private const float SPAWN_COOLDOWN = 1.0f;        // temps entre deux apparitions
+    private const float ROUND_TRANSITION_DURATION = 5f; // pause entre deux manches
+
+    private const int BASE_ZOMBIE_COUNT = 5;          // zombies à la manche 1
+    private const float ZOMBIES_ADDED_PER_ROUND = 2.2f;
+    private const float BASE_ZOMBIE_HEALTH = 50f;     // vie à la manche 1
+    private const float HEALTH_ADDED_PER_ROUND = 20f;
+    private const float BASE_ZOMBIE_SPEED = 50f;      // vitesse à la manche 1
+    private const float SPEED_ADDED_PER_ROUND = 2f;
+    private const float MAX_ZOMBIE_SPEED = 150f;
+
+    // 0 = avant la première manche, puis 1, 2, 3...
+    public int CurrentRound { get; private set; } = 0;
     public int zombiesToSpawn;      // Zombies à spawn total pour ce round
     public int zombiesSpawned;      // Zombies déjà apparus
     public int zombiesKilled;       // Zombies tués
-    public static RoundController Instance { get; private set; }  
-    private const int maxZombiesOnScreen = 24; // Limite d'affichage simultané
 
     private ZombieController zombieController;
-    private float spawnCooldown = 1.0f; // temps entre les spawns
     private float spawnTimer = 0f;
     public float roundTransitionTimer = 0f;
     public bool isRoundTransitioning = false;
 
-    public RoundController()
-    {
-        if (Instance != null)
-            throw new Exception("Une seule instance de RoundController est autorisée.");
-        Instance = this;
-    }
-
-    public void SetZombieController(ZombieController zombieController)
+    public RoundController(ZombieController zombieController)
     {
         this.zombieController = zombieController;
+        zombieController.ZombieKilled += OnZombieKilled;
     }
 
     public void StartRound()
@@ -49,26 +54,25 @@ public class RoundController
 
         spawnTimer -= deltaTime;
 
-        int currentAliveZombies = ZombieController.zombiesList.Count;
+        int currentAliveZombies = zombieController.Zombies.Count;
 
-        // Spawn si on n'a pas atteint le quota ET moins de 24 zombies à l'écran
-        if (zombiesSpawned < zombiesToSpawn && currentAliveZombies < maxZombiesOnScreen && spawnTimer <= 0f)
+        // Spawn si on n'a pas atteint le quota ET pas trop de zombies à l'écran
+        if (zombiesSpawned < zombiesToSpawn && currentAliveZombies < MAX_ZOMBIES_ON_SCREEN && spawnTimer <= 0f)
         {
             SpawnZombieForRound();
             zombiesSpawned++;
-            spawnTimer = spawnCooldown;
+            spawnTimer = SPAWN_COOLDOWN;
         }
 
         // Fin du round si tout est spawné et tué
-        if (zombiesSpawned >= zombiesToSpawn && ZombieController.zombiesList.Count == 0)
+        if (zombiesSpawned >= zombiesToSpawn && zombieController.Zombies.Count == 0)
         {
             isRoundTransitioning = true;
-            roundTransitionTimer = 5f; // 5 secondes de délai
+            roundTransitionTimer = ROUND_TRANSITION_DURATION;
         }
     }
 
-
-    public void OnZombieKilled()
+    private void OnZombieKilled(Zombie zombie, KillCause cause)
     {
         zombiesKilled++;
     }
@@ -78,24 +82,23 @@ public class RoundController
         float zombieHealth = GetZombieHealthForRound(CurrentRound);
         float zombieSpeed = GetZombieSpeedForRound(CurrentRound);
 
-        zombieController.CreateZombies(zombieHealth, zombieSpeed);
+        zombieController.CreateZombie(zombieHealth, zombieSpeed);
     }
+
+    // Les formules partent de la manche 1 : (round - 1) vaut 0 à la première manche
 
     private int GetZombiesForRound(int round)
     {
-        // Exemple de scaling (tu peux ajuster)
-        return 5 + (int)(round * 2.2f);
+        return BASE_ZOMBIE_COUNT + (int)((round - 1) * ZOMBIES_ADDED_PER_ROUND);
     }
 
     private float GetZombieHealthForRound(int round)
     {
-        // Vie de base + 20% par round
-        return 50f + (round - 1) * 20f;
+        return BASE_ZOMBIE_HEALTH + (round - 1) * HEALTH_ADDED_PER_ROUND;
     }
 
     private float GetZombieSpeedForRound(int round)
     {
-        // Vitesse de base = 50, augmente de 2 unités par round (cap à 150 max)
-        return Math.Min(50f + (round - 1) * 2f, 150f);
+        return Math.Min(BASE_ZOMBIE_SPEED + (round - 1) * SPEED_ADDED_PER_ROUND, MAX_ZOMBIE_SPEED);
     }
 }
