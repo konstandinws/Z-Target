@@ -63,7 +63,7 @@
   },
 
   "Bonus": {
-    "DropChance": 0.01,     // 10 % de chances qu'un zombie tué fasse tomber un bonus
+    "DropChance": 0.2,     // 10 % de chances qu'un zombie tué fasse tomber un bonus
     "Lifetime": 10,         // temps au sol avant de disparaître
     "EffectDuration": 10,   // durée d'InstaKill et DoublePoints
     "PickupRadius": 25
